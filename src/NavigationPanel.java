@@ -44,10 +44,10 @@ public class NavigationPanel extends JPanel{
 	
 	public NavigationPanel(Graph g){
 		super();
-		labels = new String[]{"STD", "mean", "median", "min", "max", "people", "personal score"};
-		metrics = new String[]{"X spacing", "max freq", "# y ticks"};
-		results = new String[]{"Graph STD", "Graph mean", "Graph median",
-				"Percentile"};
+		labels = new String[]{" STD", " mean", " median", " min", " max", " people", " personal score"};
+		metrics = new String[]{" X spacing", " max freq", " # y ticks"};
+		results = new String[]{" Graph STD", " Graph mean", " Graph median",
+				" Percentile"};
 		graph = g;
 		this.setMaximumSize(new Dimension(400,1000));
 		this.setMinimumSize(new Dimension(300,1000));
@@ -111,10 +111,13 @@ public class NavigationPanel extends JPanel{
 		graphResults.add(fitnessContainer);
 		graphResults.add(Box.createRigidArea(new Dimension(10,20)));
 		
-		statsPanel.add(new JLabel("Input Stats:"));
+		
 		statsPanel.add(inputPanel);
-		statsPanel.add(new JLabel("Graph Stats:"));
 		statsPanel.add(graphResults);
+		
+		//INSTRUCTIONS TAB PREPARATION
+		JScrollPane instructions = new JScrollPane(new Instructions());
+		instructions.getVerticalScrollBar().setUnitIncrement(16);
 		
 		optionsPanel.add(new JLabel("Graph Metrics:"));
 		optionsPanel.add(graphMetrics);
@@ -123,6 +126,7 @@ public class NavigationPanel extends JPanel{
 		
 		tabbedPane.addTab("Stats", statsPanel);
 		tabbedPane.addTab("Options", optionsPanel);
+		tabbedPane.addTab("Instructions", instructions);
 		
 		this.add(tabbedPane);
 	}
@@ -252,31 +256,39 @@ public class NavigationPanel extends JPanel{
 		}
 	}
 	
+	private static boolean isNumeric(String str)
+	{
+	  return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
+	}
+	
 	public double[] getTextFieldParams(){
 		double[] params = new double[10];
 		params[2] = 50;
 		for(JTextField field : fields){
-			double num = Double.parseDouble(field.getText().equals("") ? "0" : field.getText());
+			String text = field.getText();
+			if(!isNumeric(text))
+				text = "";
+			double num = Double.parseDouble(text.equals("") ? "0" : field.getText());
 			switch(field.getName()){
-				case "STD":
+				case " STD":
 					params[4] = num != 0 ? num : 10; break;
-				case "mean":
+				case " mean":
 					params[2] = num != 0 ? num : 50; break;
-				case "median":
+				case " median":
 					params[3] = num != 0 ? num : params[2]; break;
-				case "min":
+				case " min":
 					params[0] = num != 0 ? num : 0; break;
-				case "max":
+				case " max":
 					params[1] = num != 0 ? num : 100; break;
-				case "people":
+				case " people":
 					params[5] = num != 0 ? num : 100; break;
-				case "X spacing":
+				case " X spacing":
 					params[6] = num != 0 ? num : 10; break;
-				case "max freq":
+				case " max freq":
 					params[7] = num != 0 ? num : 1; break;
-				case "# y ticks":
+				case " # y ticks":
 					params[8] = num != 0 ? num : 10; break;
-				case "personal score" :
+				case " personal score" :
 					params[9] = num; break;
 				
 			}
@@ -291,18 +303,20 @@ public class NavigationPanel extends JPanel{
 	}
 	
 	public void updateLabels(double[] params){
+		if(distribution == null || distribution.length == 0)
+			return;
 		for(JLabel label : outputs){
 			switch(label.getName()){
-				case "Graph STD" : 
+				case " Graph STD" : 
 					label.setText(String.format("%2.2f", Calculator.standardDev(distribution)));
 					break;
-				case "Graph mean" : 
+				case " Graph mean" : 
 					label.setText(String.format("%2.2f", Calculator.getMean(distribution)));
 					break;
-				case "Graph median" :
+				case " Graph median" :
 					label.setText(Integer.toString(Calculator.getMedian(distribution)));
 					break;
-				case "Percentile" : 
+				case " Percentile" : 
 					int percentile = Calculator.findPercentile(distribution, (int) params[9]);
 					//int median = Calculator.getMedian(distribution);
 					if(percentile > 50){
