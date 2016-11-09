@@ -21,6 +21,7 @@ public class NavigationPanel extends JPanel{
 	final String[] labels;
 	final String[] metrics;
 	final String[] results;
+	final String[] genetics;
 	int[] fitness = {};
 	int[] distribution = {};
 	Graph graph;
@@ -48,6 +49,7 @@ public class NavigationPanel extends JPanel{
 		metrics = new String[]{" X spacing", " max freq", " # y ticks"};
 		results = new String[]{" Graph STD", " Graph mean", " Graph median",
 				" Percentile"};
+		genetics = new String[]{"generations"};
 		graph = g;
 		this.setMaximumSize(new Dimension(400,1000));
 		this.setMinimumSize(new Dimension(300,1000));
@@ -71,18 +73,21 @@ public class NavigationPanel extends JPanel{
 		//the stats input pabel
 		JPanel inputPanel = new JPanel();
 		inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.PAGE_AXIS));
-		addTextFields(inputPanel, labels);
+		FormatComponent.addTextFields(inputPanel, fields, labels);
 		
 		//the panel to display the graph metrics (x spacing, etc)
 		JPanel graphMetrics = new JPanel();
 		graphMetrics.setLayout(new BoxLayout(graphMetrics, BoxLayout.PAGE_AXIS));
-		addTextFields(graphMetrics, metrics);
+		FormatComponent.addTextFields(graphMetrics, fields, metrics);
 		
 		//the stats of the graph generated and the percentile of the input score
 		JPanel graphResults = new JPanel();
 		graphResults.setLayout(new BoxLayout(graphResults, BoxLayout.PAGE_AXIS));
-		addLabels(graphResults, results);
+		FormatComponent.addLabels(graphResults, outputs, results);
 		
+		//the panel to display genetic algorithm parameters
+		JPanel geneticMetrics = new JPanel();
+		geneticMetrics.setLayout(new BoxLayout(geneticMetrics, BoxLayout.PAGE_AXIS));
 		
 		//buttons
 		JButton generateButton = new JButton("Re-Generate");
@@ -119,6 +124,7 @@ public class NavigationPanel extends JPanel{
 		JScrollPane instructions = new JScrollPane(new Instructions());
 		instructions.getVerticalScrollBar().setUnitIncrement(16);
 		
+		//OPTIONS TAB
 		optionsPanel.add(new JLabel("Graph Metrics:"));
 		optionsPanel.add(graphMetrics);
 		optionsPanel.add(createColorPanel());
@@ -131,46 +137,6 @@ public class NavigationPanel extends JPanel{
 		this.add(tabbedPane);
 	}
 	
-	/**
-	 * Adds components to the JPane that was passed. Modifies by reference
-	 * @param p The panel to pass through
-	 * @param list The list of strings to name the buttons/textfields
-	 */
-	public void addTextFields(JPanel panel, String[] list){
-		for(String label : list){
-			JLabel l = new JLabel(label + ":");
-			
-			JTextField field = new JTextField();
-			field.setMaximumSize(new Dimension(150,20));
-			field.setMinimumSize(new Dimension(150,20));
-			//field.setBackground(new Color(200,200,255));
-			field.setName(label);
-			field.setAlignmentX(Component.CENTER_ALIGNMENT);
-			field.setHorizontalAlignment(JTextField.CENTER);
-			field.setAlignmentY(Component.CENTER_ALIGNMENT);
-			fields.add(field);
-			JPanel f = new JPanel(new BorderLayout());
-			f.setMinimumSize(new Dimension(150,40));
-			f.setPreferredSize(new Dimension(150,40));
-			f.setMaximumSize(new Dimension(150,40));
-			f.add(field);
-			JPanel fieldContainer = new JPanel();
-			fieldContainer.setLayout(new BoxLayout(fieldContainer, BoxLayout.Y_AXIS));
-			//fieldContainer.add(Box.createVerticalStrut(50));
-			fieldContainer.setPreferredSize(new Dimension(150,40));
-			fieldContainer.setMinimumSize(new Dimension(150,40));
-			fieldContainer.setMaximumSize(new Dimension(150,40));
-			fieldContainer.add(Box.createVerticalGlue());
-			fieldContainer.add(f);
-			fieldContainer.add(Box.createVerticalGlue());
-			
-			JPanel p = new JPanel(new GridLayout(1,2));
-			//p.setBackground(new Color(255,240,240));
-			p.add(l);
-			p.add(fieldContainer);
-			panel.add(p);
-		}
-	}
 	
 	public void initializeColorSliders(){
 		sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.PAGE_AXIS));
@@ -238,23 +204,7 @@ public class NavigationPanel extends JPanel{
 		return cPanel;
 	}
 	
-	public void addLabels(JPanel panel, String[] list){
-		for(String label : list){
-			JLabel l = new JLabel(label + ":");
-			
-			JLabel field = new JLabel("");
-			field.setPreferredSize(new Dimension(100,30));
-			field.setName(label);
-			field.setAlignmentX(SwingConstants.EAST);
-			field.setHorizontalAlignment(JTextField.CENTER);
-			outputs.add(field);
-			
-			JPanel p = new JPanel(new GridLayout(1,2));
-			p.add(l);
-			p.add(field);
-			panel.add(p);
-		}
-	}
+
 	
 	private static boolean isNumeric(String str)
 	{
@@ -281,7 +231,7 @@ public class NavigationPanel extends JPanel{
 				case " max":
 					params[1] = num != 0 ? num : 100; break;
 				case " people":
-					params[5] = num != 0 ? num : 100; break;
+					params[5] = num != 0 ? num : 100; break; 
 				case " X spacing":
 					params[6] = num != 0 ? num : 10; break;
 				case " max freq":
@@ -290,7 +240,6 @@ public class NavigationPanel extends JPanel{
 					params[8] = num != 0 ? num : 10; break;
 				case " personal score" :
 					params[9] = num; break;
-				
 			}
 		}
 		return params;
@@ -422,6 +371,10 @@ public class NavigationPanel extends JPanel{
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			JSlider source = (JSlider)e.getSource();
+			
+			if(source == null)
+				return;
+			
 			switch(source.getName()) {
 			case "red" :
 				red = source.getValue();
