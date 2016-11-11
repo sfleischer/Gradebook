@@ -11,7 +11,7 @@ public class Calculator {
 	private int[] fitchart;
 	private int[] weakchart;
 	
-	public static final int GENERATIONS = 300;
+	private int generations = 300;
 	
 	public Calculator(double min, double max, double mean, double median, double std, int people){
 		this.min = min;
@@ -20,8 +20,8 @@ public class Calculator {
 		this.median = median;
 		this.std = std;
 		this.people = people;
-		fitchart = new int[GENERATIONS];
-		weakchart = new int[GENERATIONS];
+		fitchart = new int[generations];
+		weakchart = new int[generations];
 	}
 	
 	public int[] generateHistogram(double xspacing){
@@ -52,7 +52,7 @@ public class Calculator {
 	
 	public int[] findDistribution(){
 		int[][] population = generateFirstPopulation(min, max, people, 50);
-		for(int i = 0; i < GENERATIONS; i++){
+		for(int i = 0; i < generations; i++){
 			int[][] fittest = findTheFittest(population);
 			int[][] culled = cull(fittest, population);
 			population = createNextGeneration(culled);
@@ -294,5 +294,12 @@ public class Calculator {
 	public double getMean(){ return mean; }
 	public double getMedian(){ return median; }
 	public int getPeople(){ return people; }
+	
+	//IMPORTANT SETTERS
+	public void setGenerations(int g){
+		generations = g;
+		fitchart = new int[generations];
+		weakchart = new int[generations];
+	}
 	
 }
