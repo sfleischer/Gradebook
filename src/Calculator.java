@@ -12,6 +12,7 @@ public class Calculator {
 	private int[] weakchart;
 	
 	private int generations = 300;
+	private int threshold = 1000; //threshold will end the algorithm if the top graph's fitness passes this
 	
 	public Calculator(double min, double max, double mean, double median, double std, int people){
 		this.min = min;
@@ -52,13 +53,14 @@ public class Calculator {
 	
 	public int[] findDistribution(){
 		int[][] population = generateFirstPopulation(min, max, people, 50);
-		for(int i = 0; i < generations; i++){
+		int i = 0;
+		do {
 			int[][] fittest = findTheFittest(population);
 			int[][] culled = cull(fittest, population);
 			population = createNextGeneration(culled);
 			fitchart[i] = fittest[fittest.length-1][0];
 			weakchart[i] = fittest[0][0];
-		}
+		} while(i < generations-1 && fitchart[i++] < threshold);
 		int[][] fittest = findTheFittest(population);
 		return population[fittest[fittest.length-1][1]];
 	}
@@ -300,6 +302,10 @@ public class Calculator {
 		generations = g;
 		fitchart = new int[generations];
 		weakchart = new int[generations];
+	}
+	
+	public void setThresold(int threshold){
+		
 	}
 	
 }

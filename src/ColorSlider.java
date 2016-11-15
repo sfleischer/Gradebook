@@ -19,13 +19,17 @@ public class ColorSlider extends JPanel implements MouseListener, MouseMotionLis
 	ArrayList<ChangeListener> list = new ArrayList<ChangeListener>();
 	
 	Color base;
-	int value;
+	String label;
+	double value;
 	int x;
 	int y;
+	double max;
 	
-	public ColorSlider(Color c){
+	public ColorSlider(Color c, String title, double max){
 		base = c;
 		value = 50;
+		label = title;
+		this.max = max;
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 	}
@@ -35,14 +39,17 @@ public class ColorSlider extends JPanel implements MouseListener, MouseMotionLis
 		
 		x = getWidth();
 		y = getHeight();
-		
+		int height = g2.getFont().getSize();
+		int space = getHeight() - height;
+		space = space / 2;
+		g2.drawString(label + " " + value, 0, getHeight() - space);
 		//draw filling
 		g2.setPaint(base);
-		g2.fill(new Rectangle2D.Double(0,0,value/255.0 * x, y));
+		g2.fill(new Rectangle2D.Double(x/2, 3, value/max * x/2, y-3));
 		
 		//draw border
 		g2.setPaint(Color.black);
-		g2.draw(new Rectangle2D.Double(0,0,x,y));
+		g2.draw(new Rectangle2D.Double(x/2, 3, x/2, y-3));
 		
 	}
 	
@@ -58,9 +65,13 @@ public class ColorSlider extends JPanel implements MouseListener, MouseMotionLis
 
 	public void handleChange(MouseEvent e){
 		double px = e.getX();
-		value = (int) (255 * (px/x));
-		repaint();
-		dispatchEvent();
+		if(px > x/2 && px <= x){
+			value = (max * (2*(px - x/2)/x));
+			value = Math.round(value*100)/100.0;
+			repaint();
+			dispatchEvent();
+		} else if(px <= x/2)
+			value = 0;
 	}
 	
 	@Override

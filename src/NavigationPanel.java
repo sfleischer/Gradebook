@@ -11,8 +11,6 @@ import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.util.ArrayList;
 import java.awt.event.*;
-import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -131,7 +129,6 @@ public class NavigationPanel extends JPanel{
 		buttonPanel.add(updateButton);
 		
 		
-		
 		initializeColorSliders();
 		
 		graphMetrics.add(updateContainer);
@@ -156,6 +153,7 @@ public class NavigationPanel extends JPanel{
 		//optionsPanel.add(new JLabel("Graph Metrics:"));
 		//optionsPanel.add(graphMetrics);
 		optionsPanel.add(geneticMetrics);
+		optionsPanel.add(initializeWeights());
 		//optionsPanel.add(geneticMetrics);
 		optionsPanel.add(createColorPanel());
 		optionsPanel.add(sliderPanel);
@@ -166,6 +164,17 @@ public class NavigationPanel extends JPanel{
 		tabbedPane.addTab("Instructions", instructions);
 		
 		this.add(tabbedPane);
+	}
+	
+	public JPanel initializeWeights(){
+		String[] weights = {" STD", " mean", " median", " min", " max"};
+		JPanel wPanel = new JPanel();
+		wPanel.setLayout(new BoxLayout(wPanel, BoxLayout.PAGE_AXIS));
+		for(String title : weights){
+			ColorSlider s = new ColorSlider(Color.black, title, 100);
+			wPanel.add(s);
+		}
+		return wPanel;
 	}
 	
 	
@@ -247,31 +256,31 @@ public class NavigationPanel extends JPanel{
 		for(JTextField field : fields){
 			String text = field.getText();
 			if(!isNumeric(text))
-				text = "";
-			double num = Double.parseDouble(text.equals("") ? "0" : text);
+				continue;
+			double num = Double.parseDouble(text);
 			switch(field.getName()){
 				case " STD":
-					state.setSTD(num != 0 ? num : 10); break;
+					state.setSTD(num); break;
 				case " mean":
-					state.setMean(num != 0 ? num : 50); break;
+					state.setMean(num); break;
 				case " median":
-					state.setMedian(num != 0 ? num : 50); break;
+					state.setMedian(num); break;
 				case " min":
-					state.setMin(num != 0 ? num : 0); break;
+					state.setMin(num); break;
 				case " max":
-					state.setMax(num != 0 ? num : 100); break;
+					state.setMax(num); break;
 				case " people":
-					state.setPeople((int) (num != 0 ? num : 100)); break; 
+					state.setPeople((int) num); break; 
 				case " X spacing":
-					state.setXSpacing(num != 0 ? num : 10); break;
+					state.setXSpacing(num); break;
 				case " # y ticks":
-					state.setYTicks( num != 0 ? num : 10); break;
+					state.setYTicks( num); break;
 				case " personal score" :
 					state.setPersonal(num); break;
 				case " Generations" :
-					state.setGenerations((int) (num != 0 ? num : 300)); break;
+					state.setGenerations((int) num); break;
 				case " Threshold" :
-					state.setThreshold((int) (num != 0 ? num : 950));
+					state.setThreshold((int) num);
 			}
 		}
 		return state;
