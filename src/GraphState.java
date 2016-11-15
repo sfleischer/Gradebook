@@ -17,6 +17,24 @@ public class GraphState {
 	private double mutation;
 	private int threshold;
 	
+	public GraphState(){
+		STD = 10;
+		mean = 50;
+		median = 50;
+		min = 0;
+		max = 100;
+		people = 100;
+		personal = 0;
+		
+		spacing = 10;
+		yticks = 10;
+		intensity = true;
+		
+		generations = 300;
+		mutation = 8;
+		threshold = 1000;
+	}
+	
 	public void setSTD(double s)	{ STD = s; }
 	public void setMean(double m)	{ mean = m; }
 	public void setMedian(double m)	{ median = m; }
@@ -29,9 +47,12 @@ public class GraphState {
 	public void setYTicks(double y)		{ yticks = y; }
 	public void setIntensity(boolean b)	{ intensity = b; }
 	
-	public void setGenerations(int g)   {generations = g; }
+	public void setGenerations(int g)   { generations = g; }
 	public void setMutation(double m)   { mutation = m; }
-	public void setThreshold(int t)     { threshold = t; }
+	public void setThreshold(int t){
+		threshold = t > 1000 ? 1000 : t; 
+		threshold = t < 0 ? 0 : threshold;
+	}
 	
 	
 	/*
