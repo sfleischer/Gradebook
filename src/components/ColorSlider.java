@@ -1,29 +1,30 @@
+package components;
+
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JPanel;
-import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 
-public class ColorSlider extends JPanel implements MouseListener, MouseMotionListener {
+public class ColorSlider extends JPanel implements Slidable{
 	
-	ArrayList<ChangeListener> list = new ArrayList<ChangeListener>();
+	List<ChangeListener> list = new ArrayList<ChangeListener>();
 	
-	Color base;
-	String label;
-	double value;
-	int x;
-	int y;
-	double max;
+	public static final int VERTICAL = 0;
+	public static final int HORIZONTAL = 1;
+	
+	protected Color base;
+	protected String label;
+	protected double value;
+	protected double max;
+	protected int orientation;
 	
 	public ColorSlider(Color c, String title, double max){
 		base = c;
@@ -37,8 +38,8 @@ public class ColorSlider extends JPanel implements MouseListener, MouseMotionLis
 	public void paintComponent(Graphics g){
 		Graphics2D g2 = (Graphics2D) g;
 		
-		x = getWidth();
-		y = getHeight();
+		int x = getWidth();
+		int y = getHeight();
 		int height = g2.getFont().getSize();
 		int space = getHeight() - height;
 		space = space / 2;
@@ -65,6 +66,7 @@ public class ColorSlider extends JPanel implements MouseListener, MouseMotionLis
 
 	public void handleChange(MouseEvent e){
 		double px = e.getX();
+		int x = getWidth();
 		if(px > x/2 && px <= x){
 			value = (max * (2*(px - x/2)/x));
 			value = Math.round(value*100)/100.0;
@@ -72,6 +74,10 @@ public class ColorSlider extends JPanel implements MouseListener, MouseMotionLis
 			dispatchEvent();
 		} else if(px <= x/2)
 			value = 0;
+	}
+	
+	public double getValue(){
+		return value;
 	}
 	
 	@Override
