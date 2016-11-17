@@ -1,9 +1,14 @@
 import java.awt.*;
+
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.*;
-
+import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
+import components.Moveable;
+import components.*;
 
-public class Graph extends JPanel{
+public class Graph extends JPanel implements MouseListener{
 	
 	/**
 	 * 
@@ -31,10 +36,15 @@ public class Graph extends JPanel{
 	
 	Color bar1;
 	Color bar2;
+	boolean showGradient = false;
+	GradientPanel gradient;
 	
 	public Graph(){
 		bar1 = Color.red;
 		bar2 = Color.blue;
+		
+		this.addMouseListener(this);
+		this.setLayout(null);
 	}
 	
 	public void paintComponent(Graphics g){
@@ -119,11 +129,8 @@ public class Graph extends JPanel{
 		for(int i = 0; i < numBins; i++){
 			if(grades[i] == 0)
 				continue;
-			
-			if(i % 2 == 0)
-				c = bar1;
-			else
-				c = bar2;
+
+			c = (i % 2 == 0) ? bar1 : bar2;
 			g2.setColor(c);
 
 			g2.fill(new Rectangle2D.Double(xstart + i*xunit+HIST_SPACE,
@@ -176,5 +183,80 @@ public class Graph extends JPanel{
 		int indexdot = decimal.indexOf(".");
 		int length = decimal.length() - indexdot - 1;
 		return length < 4 ? length : 4;
+	}
+
+	private Color getBarColor(Point p){
+		int numBins = grades.length;
+		double max = maxval(grades);
+		
+		double x = p.getX();
+		x = x - xstart;
+		int xbin = (int) (x/xunit);
+		
+		if(xbin >= grades.length || xbin < 0)
+			return null;
+		
+		double y = p.getY();
+		double ylower = ylength + END_SPACE/2 - (grades[xbin]/max)/max_frequency*ylength;
+		double yupper = ylength + END_SPACE/2;
+		if(ylower < y && y < yupper){
+			return (xbin % 2 == 0) ? bar1 : bar2;
+		}
+		return null;
+	}
+	
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		//getBar(e.getPoint());
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		Point pt = e.getPoint();
+		Color c = getBarColor(pt);
+		if(c == null)
+			return;
+		if(gradient != null)
+			return;
+		Insets insets = this.getInsets();
+		gradient = new GradientPanel(c, 200);
+		gradient.setBounds((int) pt.getX() + insets.right, (int) pt.getY() + insets.top,
+				GradientPanel.WIDTH, GradientPanel.HEIGHT);
+		gradient.addMoveListener(new MoveHandler());
+		this.add(gradient);
+		repaint();
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+	}
+	
+	private class MoveHandler implements Moveable{
+
+		@Override
+		public void move(int dx, int dy) {
+			if(gradient == null)
+				throw new RuntimeException("Gradient is null?");
+			//Rectangle rect = gradient.getBounds();
+			gradient.setBounds(dx - getInsets().right, dy - getInsets().top, 
+					GradientPanel.WIDTH, GradientPanel.HEIGHT);
+		}
+
+		@Override
+		public void close() {
+			remove(gradient);
+			gradient = null;
+		}
 	}
 }
