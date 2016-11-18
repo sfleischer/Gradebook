@@ -34,14 +34,14 @@ public class Graph extends JPanel implements MouseListener{
 	int xlength = 0;
 	int ylength = 0;
 	
-	Color bar1;
-	Color bar2;
+	Color current;
+	Color[] colorBar = new Color[2];
 	boolean showGradient = false;
 	GradientPanel gradient;
 	
 	public Graph(){
-		bar1 = Color.red;
-		bar2 = Color.blue;
+		colorBar[0] = Color.red;
+		colorBar[1] = Color.blue;
 		
 		this.addMouseListener(this);
 		this.setLayout(null);
@@ -124,14 +124,14 @@ public class Graph extends JPanel implements MouseListener{
 	
 	public void drawHistogramBars(Graphics2D g2){
 		int numBins = grades.length;
-		Color c;
 		double max = maxval(grades);
 		for(int i = 0; i < numBins; i++){
 			if(grades[i] == 0)
 				continue;
 
-			c = (i % 2 == 0) ? bar1 : bar2;
-			g2.setColor(c);
+			
+			int index = i % 2;
+			g2.setColor(colorBar[index]);
 
 			g2.fill(new Rectangle2D.Double(xstart + i*xunit+HIST_SPACE,
 					ystart - (grades[i]/max)/max_frequency*ylength, 
@@ -147,6 +147,7 @@ public class Graph extends JPanel implements MouseListener{
 		
 	}
 	
+	/*
 	public void setBarColor1(Color b){
 		bar1 = b;
 		repaint();
@@ -156,6 +157,7 @@ public class Graph extends JPanel implements MouseListener{
 		bar2 = b;
 		repaint();
 	}
+	*/
 	
 	private int maxval(int[] array){
 		int max = array[0];
@@ -185,7 +187,7 @@ public class Graph extends JPanel implements MouseListener{
 		return length < 4 ? length : 4;
 	}
 
-	private Color getBarColor(Point p){
+	private int getBarColorIndex(Point p){
 		int numBins = grades.length;
 		double max = maxval(grades);
 		
@@ -194,15 +196,15 @@ public class Graph extends JPanel implements MouseListener{
 		int xbin = (int) (x/xunit);
 		
 		if(xbin >= grades.length || xbin < 0)
-			return null;
+			return -1;
 		
 		double y = p.getY();
 		double ylower = ylength + END_SPACE/2 - (grades[xbin]/max)/max_frequency*ylength;
 		double yupper = ylength + END_SPACE/2;
 		if(ylower < y && y < yupper){
-			return (xbin % 2 == 0) ? bar1 : bar2;
+			return xbin % 2;
 		}
-		return null;
+		return 0;
 	}
 	
 	@Override
@@ -213,13 +215,13 @@ public class Graph extends JPanel implements MouseListener{
 	@Override
 	public void mousePressed(MouseEvent e) {
 		Point pt = e.getPoint();
-		Color c = getBarColor(pt);
-		if(c == null)
+		int index = getBarColorIndex(pt);
+		if(index == -1)
 			return;
 		if(gradient != null)
 			return;
 		Insets insets = this.getInsets();
-		gradient = new GradientPanel(c, 200);
+		gradient = new GradientPanel(colorBar, index, 200);
 		gradient.setBounds((int) pt.getX() + insets.right, (int) pt.getY() + insets.top,
 				GradientPanel.WIDTH, GradientPanel.HEIGHT);
 		gradient.addMoveListener(new MoveHandler());
@@ -257,6 +259,11 @@ public class Graph extends JPanel implements MouseListener{
 		public void close() {
 			remove(gradient);
 			gradient = null;
+			repaint();
+		}
+		
+		public void update(){
+			repaint();
 		}
 	}
 }

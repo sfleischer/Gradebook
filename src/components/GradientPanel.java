@@ -1,6 +1,7 @@
 package components;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -8,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -20,10 +23,12 @@ import javax.swing.event.ChangeListener;
 
 public class GradientPanel extends JPanel implements MouseListener, MouseMotionListener{
 	
-	Color color;
-	Color shade;
-	int width;
-	Point selected;
+	Color[] colors; //current color of the panel
+	Color pure; //color of the slider
+	int width;   //width of the whole panel (redundant)
+	int index;   //the index of the current color;
+	Point selected; //the position of the center of the selector
+	int radius = 4; //selector radius
 	
 	List<Moveable> movelist;
 	
@@ -49,21 +54,29 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 			Color.yellow, Color.red};
 	private static final int COLOR_MAX = 600; //max image slider value
 	
-	public GradientPanel(Color c, int size){
-		color = c;
+	public GradientPanel(Color c[], int index, int size){
+		colors = c;
+		pure = Color.red;
+		this.index = index;
 		width = size;
 		selected = new Point(200,200);
 		movelist = new ArrayList<Moveable>();
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 		this.setBackground(new Color(0,0,0,255));
+		this.setLayout(null);
 		
 		BufferedImage image = getSliderImage(WIDTH - IMAGE_SIZE, HEIGHT - BAR_HEIGHT);
-		ImageSlider slider = new ImageSlider(image, COLOR_MAX);
+		ImageSlider slider = new ImageSlider(image, 0, COLOR_MAX);
 		slider.setBounds(IMAGE_SIZE, BAR_HEIGHT,
 				WIDTH - IMAGE_SIZE, HEIGHT - BAR_HEIGHT);
 		slider.addChangeListener(new ImageSliderHandler());
 		this.add(slider);
+		
+		CloseButton cb = new CloseButton();
+		cb.setBounds(WIDTH - BAR_HEIGHT, 0, BAR_HEIGHT, BAR_HEIGHT);
+		cb.addActionListener(new CloseHandler());
+		this.add(cb);
 	}
 	
 	@Override
@@ -76,19 +89,20 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 		//g2.draw(new Line2D.Double(0, 0, -10, -10));
 		//g2.draw(new Line2D.Double(0, 0, 10, 10));
 		drawBar(g2, 0, 0, BAR_WIDTH, BAR_HEIGHT);
-		g2.drawImage(getGradient(width, color), 0, BAR_HEIGHT, null);
+		g2.drawImage(getGradient(width, pure), 0, BAR_HEIGHT, null);
 		drawColorSelector(g2);
+		g2.setColor(Color.black);
+		g2.drawRect(0, 0, WIDTH, HEIGHT);
+
 	}
 	
 	public void drawColorSelector(Graphics2D g2){
-		int radius = 4;
 		g2.setPaint(Color.black);
-		g2.draw(new Ellipse2D.Double(selected.getX() - 2*radius, 
-				selected.getY() - 2*radius , 2*radius, 2*radius));
-		radius = radius - 1;
+		g2.draw(new Ellipse2D.Double(selected.getX() - radius, 
+				selected.getY() - radius, 2*radius, 2*radius));
 		g2.setPaint(new Color(255,255,255,200));
-		g2.draw(new Ellipse2D.Double(selected.getX() - 2*radius - 1, 
-				selected.getY() - 2*radius - 1, 2*radius, 2*radius));
+		g2.draw(new Ellipse2D.Double(selected.getX() - radius + 1, 
+				selected.getY() - radius + 1, 2*(radius-1), 2*(radius-1)));
 	}
 	
 	public void drawBar(Graphics2D g2, int startx, int starty, int width, int height){
@@ -102,6 +116,7 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 		int w = g2.getFontMetrics().stringWidth(text);
 		g2.setPaint(Color.black);
 		g2.drawString(text, startx + width / 2 - w/2, starty + height - space);
+		g2.drawRect(startx, starty, width, height);
 	}
 	
 	public BufferedImage getGradient(int width, Color colo){
@@ -169,8 +184,60 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 		}
 	}
 	
+	public void updatePanel(){
+		for(Moveable m : movelist){
+			m.update();
+		}
+	}
+	
+	/**
+	 * Get the value of the color slider given the Color
+	 * @param c The color to find the value
+	 * @return The value
+	 */
+	public double getValue(Color c){
+		return 0;
+	}
+	
+	/**
+	 * Given a point on the gradient, find the corresponding color
+	 * @param pt
+	 * @return
+	 */
+	public Color getColor(Point pt){
+		if(pt.getX() < 0 || pt.getX() > IMAGE_SIZE ||
+			pt.getY() < BAR_HEIGHT || pt.getY() > HEIGHT)
+		return null;
+		
+		double color_weight = pt.getX() / IMAGE_SIZE;
+		double light_weight = 1 - color_weight;
+		double dark_weight = (pt.getY() - BAR_HEIGHT) / IMAGE_SIZE;
+		double red = pure.getRed() * color_weight + 
+				255 * light_weight - 255 * dark_weight;
+		double green = pure.getGreen() * color_weight + 
+				255 * light_weight - 255 * dark_weight;
+		double blue = pure.getBlue() * color_weight + 
+				255 * light_weight- 255 * dark_weight;
+		red = trim(red);
+		green = trim(green);
+		blue = trim(blue);
+		Color c = new Color((int) red, (int) green, (int) blue);
+		System.out.println(c + " color: " + color_weight + " dark: " + dark_weight);
+		return c;
+	}
+	
+	private double trim(double val){
+		double v = (255 < val) ? 255 : val;
+		v = (0 > v) ? 0 : v;
+		return v;
+	}
+	
+	/**
+	 * What is the caller of this method? Should it alter pure or colors?
+	 * @param c
+	 */
 	public void setColor(Color c){
-		color = c;
+		pure = c;
 	}
 
 	@Override
@@ -178,8 +245,13 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 		relative_x = e.getX();
 		relative_y = e.getY();
 		
-		if(relative_y > BAR_HEIGHT)
-			selected = e.getPoint();
+		if(relative_y > BAR_HEIGHT){
+			int x = relative_x - radius;
+			int y = relative_y - radius;
+			selected = new Point(x,y);
+			colors[index] = getColor(selected);
+			updatePanel();
+		}
 		repaint();
 	}
 
@@ -188,8 +260,13 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 		relative_x = e.getX();
 		relative_y = e.getY();
 		
-		if(relative_y > BAR_HEIGHT)
-			selected = e.getPoint();
+		if(relative_y > BAR_HEIGHT){
+			int x = relative_x - radius;
+			int y = relative_y - radius;
+			selected = new Point(x,y);
+			colors[index] = getColor(selected);
+			updatePanel();
+		}
 		repaint();
 	}
 
@@ -214,7 +291,14 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		if(relative_y > BAR_HEIGHT) {
-			selected = e.getPoint();
+			int x = e.getX() - radius;
+			int y = e.getY() - radius;
+			if(x > 0 && x < IMAGE_SIZE && y < HEIGHT && y > BAR_HEIGHT){
+				selected = new Point(x,y);
+				colors[index] = getColor(selected);
+				System.out.println(colors[index]);
+				updatePanel();
+			}
 		} else{
 			Rectangle rect = this.getBounds();
 			px = rect.x + e.getX() - relative_x;
@@ -237,20 +321,28 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 		public void stateChanged(ChangeEvent e) {
 			ColorSlider s = (ColorSlider) e.getSource();
 			double value = s.getValue();
-			int index = (int) (value / 100);
-			double weight2 = (value - index * 100) / 100;
+			int i = (int) (value / 100);
+			double weight2 = (value - i * 100) / 100;
 			double weight1 = 1 - weight2;
 			System.out.println("weight1 " + weight1);
-			int red = (int) (array[index].getRed()*weight1 
-					+ array[index+1].getRed()*weight2);
-			int green = (int) (array[index].getGreen()*weight1 
-					+ array[index+1].getGreen()*weight2);
-			int blue = (int) (array[index].getBlue()*weight1 
-					+ array[index+1].getBlue()*weight2);
-			color = new Color(red, green, blue);
+			int red = (int) (array[i].getRed()*weight1 
+					+ array[i+1].getRed()*weight2);
+			int green = (int) (array[i].getGreen()*weight1 
+					+ array[i+1].getGreen()*weight2);
+			int blue = (int) (array[i].getBlue()*weight1 
+					+ array[i+1].getBlue()*weight2);
+			pure = new Color(red, green, blue);
+			colors[index] = getColor(selected);
+			updatePanel();
 			repaint();
 		}
-		
 	}
+	
+	private class CloseHandler implements ActionListener{
 
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			closePanel();
+		}	
+	}
 }

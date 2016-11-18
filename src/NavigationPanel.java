@@ -132,7 +132,7 @@ public class NavigationPanel extends JPanel{
 		buttonPanel.add(updateButton);
 		
 		
-		initializeColorSliders();
+		//initializeColorSliders();
 		
 		graphMetrics.add(updateContainer);
 		
@@ -159,7 +159,7 @@ public class NavigationPanel extends JPanel{
 		optionsPanel.add(initializeWeights());
 		//optionsPanel.add(geneticMetrics);
 		optionsPanel.add(createColorPanel());
-		optionsPanel.add(sliderPanel);
+		//optionsPanel.add(sliderPanel);
 		
 		tabbedPane.addTab("Stats", statsPanel);
 		//tabbedPane.addTab("Genetics", geneticMetrics);
@@ -434,10 +434,10 @@ public class NavigationPanel extends JPanel{
 			
 			switch(crbg.getSelectedActionCommand()){
 			case "bar1" :
-				graph.setBarColor1(new Color(red, green, blue));
+				//graph.setBarColor1(new Color(red, green, blue));
 				break;
 			case "bar2" :
-				graph.setBarColor2(new Color(red, green, blue));
+				//graph.setBarColor2(new Color(red, green, blue));
 				break;
 			}
 		}

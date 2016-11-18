@@ -22,15 +22,15 @@ import javax.swing.event.ChangeListener;
 public class ImageSlider extends ColorSlider{
 	
 	BufferedImage image;
-	
-	public ImageSlider(BufferedImage im, double max) {
-		super(null, "", max);
-		image = im;
-	}
-
 	int width;
 	int height;
-	double value;
+	//double value;
+	
+	public ImageSlider(BufferedImage im, double val, double max) {
+		super(null, "", max);
+		image = im;
+		value = val;
+	}
 	
 	@Override
 	public void paintComponent(Graphics g){
@@ -67,9 +67,6 @@ public class ImageSlider extends ColorSlider{
 		repaint();
 	}
 	
-	@Override
-	public double getValue(){
-		return value;
-	}
+	
 
 }
