@@ -55,7 +55,7 @@ public class NavigationPanel extends JPanel{
 		metrics = new String[]{" X spacing", " # y ticks"};
 		results = new String[]{" Graph STD", " Graph mean", " Graph median",
 				" Percentile"};
-		genetics = new String[]{" Generations", " Threshold", " Mutation Rate"};
+		genetics = new String[]{" Generations", " Threshold", " Population"};
 		fitlabels = new String[]{"fitness rank", "diversity rank", 
 				"fitdiverse rank","tailed fitness rank"};
 		graph = g;
@@ -284,6 +284,8 @@ public class NavigationPanel extends JPanel{
 					state.setGenerations((int) num); break;
 				case " Threshold" :
 					state.setThreshold((int) num);
+				case " Population" :
+					state.setPopulation((int) num);
 			}
 		}
 		return state;
@@ -448,6 +450,8 @@ public class NavigationPanel extends JPanel{
 		
 		public void actionPerformed(ActionEvent e){
 			GraphState state = getTextFieldParams();
+			calculator.setGenerations(state.getGenerations());
+			calculator.setThresold(state.getThreshold());
 		}
 	}
 	

@@ -1,7 +1,7 @@
 
 public class Calculator {
 
-	//public static final int 
+	//graph statistics
 	private double min;
 	private double max;
 	private double mean;
@@ -11,8 +11,18 @@ public class Calculator {
 	private int[] fitchart;
 	private int[] weakchart;
 	
+	//genetics specifications
 	private int generations = 300;
 	private int threshold = 1000; //threshold will end the algorithm if the top graph's fitness passes this
+	private int popSize = 50; //the size of each population
+	
+	//weights. the sum of all weights should equal less than 10
+	private double min_weight = 0.5;
+	private double max_weight = 0.5;
+	private double mean_weight = 2;
+	private double median_weight = 3;
+	private double std_weight = 3;
+	
 	
 	public Calculator(double min, double max, double mean, double median, double std, int people){
 		this.min = min;
@@ -86,6 +96,10 @@ public class Calculator {
 		Sorting.sort(fitness);
 		return fitness;
 	}
+	
+	/*public int[][] findTheMostDiverse(int[][] population){
+		
+	}*/
 	
 	public int[][] cull(int[][] fitness, int[][] population){
 		int[][] culled = new int[fitness.length/2][population[0].length];
@@ -161,17 +175,19 @@ public class Calculator {
 	public int getFitness(int[] array){
 		double fitness = 1000;
 		Sorting.sort(array);
-		fitness -= 3*Math.pow(std - standardDev(array), 2);
-		fitness -= 2*Math.pow(mean - getMean(array), 2);
-		fitness -= 3*Math.pow(median - array[array.length/2], 2);
-		
-		if(min != -1)
-			fitness -= 0.5*Math.pow(min - array[0], 2);
-		
-		if(max != -1)
-			fitness -= 0.5*Math.pow(max - array[array.length-1], 2);
+		fitness -= std_weight * Math.pow(std - standardDev(array), 2);
+		fitness -= mean_weight * Math.pow(mean - getMean(array), 2);
+		fitness -= median_weight * Math.pow(median - array[array.length/2], 2);
+		fitness -= min_weight * Math.pow(min - array[0], 2);
+		fitness -= max_weight * Math.pow(max - array[array.length-1], 2);
 		return (int) fitness;
 	}
+	
+	/*
+	public int getDiversity(int[] array){
+		double diversity = 1000;
+		Sorting.sort(array);
+	}*/
 	
 	/**
 	 * Returns the fitchart of the calculator. A fitchart plots the fitness of the most
@@ -189,6 +205,8 @@ public class Calculator {
 	
 	@Override
 	public boolean equals(Object o){
+		if(!this.getClass().equals(o.getClass()))
+			return false;
 		Calculator calc = (Calculator) o;
 		return 	min == calc.getMin() &&
 				max == calc.getMax() &&
@@ -305,7 +323,11 @@ public class Calculator {
 	}
 	
 	public void setThresold(int threshold){
-		
+		this.threshold = threshold;
+	}
+	
+	public void setStdWeight(double weight){
+		std_weight = weight;
 	}
 	
 }

@@ -16,6 +16,7 @@ public class GraphState {
 	private int generations;
 	private double mutation;
 	private int threshold;
+	private int population;
 	
 	public GraphState(){
 		STD = 10;
@@ -33,6 +34,7 @@ public class GraphState {
 		generations = 300;
 		mutation = 8;
 		threshold = 1000;
+		population = 50;
 	}
 	
 	public void setSTD(double s)	{ STD = s; }
@@ -53,6 +55,7 @@ public class GraphState {
 		threshold = t > 1000 ? 1000 : t; 
 		threshold = t < 0 ? 0 : threshold;
 	}
+	public void setPopulation(int p)    { population = p; }
 	
 	
 	/*
@@ -73,5 +76,6 @@ public class GraphState {
 	public int 	   getGenerations(){ return generations; }
 	public double  getMutation()   { return mutation; }
 	public int 	   getThreshold()  { return threshold; }  
+	public int 	   getPopulation() { return population; }
 	
 }

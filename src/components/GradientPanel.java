@@ -59,7 +59,7 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 		pure = Color.red;
 		this.index = index;
 		width = size;
-		selected = new Point(200,200);
+		selected = new Point(IMAGE_SIZE, BAR_HEIGHT);
 		movelist = new ArrayList<Moveable>();
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
@@ -202,28 +202,34 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 	/**
 	 * Given a point on the gradient, find the corresponding color
 	 * @param pt
-	 * @return
+	 * @return The color of a point on the Gradient
 	 */
 	public Color getColor(Point pt){
+		//return if the point is out-of-bounds
 		if(pt.getX() < 0 || pt.getX() > IMAGE_SIZE ||
 			pt.getY() < BAR_HEIGHT || pt.getY() > HEIGHT)
 		return null;
 		
+		//get the weights from selector position
 		double color_weight = pt.getX() / IMAGE_SIZE;
 		double light_weight = 1 - color_weight;
 		double dark_weight = (pt.getY() - BAR_HEIGHT) / IMAGE_SIZE;
+		
+		//assign appropriate weights
 		double red = pure.getRed() * color_weight + 
 				255 * light_weight - 255 * dark_weight;
 		double green = pure.getGreen() * color_weight + 
 				255 * light_weight - 255 * dark_weight;
 		double blue = pure.getBlue() * color_weight + 
 				255 * light_weight- 255 * dark_weight;
+		
+		//trim the values so that we don't get out of bounds errors
 		red = trim(red);
 		green = trim(green);
 		blue = trim(blue);
-		Color c = new Color((int) red, (int) green, (int) blue);
-		System.out.println(c + " color: " + color_weight + " dark: " + dark_weight);
-		return c;
+		
+		//return the value
+		return new Color((int) red, (int) green, (int) blue);
 	}
 	
 	private double trim(double val){

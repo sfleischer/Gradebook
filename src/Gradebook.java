@@ -9,7 +9,8 @@ public class Gradebook {
 		JFrame frame = new JFrame("Gradebook");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setContentPane(new Master());
-		frame.setMinimumSize(new Dimension(1000,700));
+		//frame.setMinimumSize(new Dimension(1000,700));
+		frame.pack();
 		frame.setVisible(true);
 	}
 }
