@@ -43,6 +43,7 @@ public class Graph extends JPanel implements MouseListener{
 		colorBar[0] = Color.red;
 		colorBar[1] = Color.blue;
 		
+		this.setPreferredSize(new Dimension(700,700));
 		this.addMouseListener(this);
 		this.setLayout(null);
 	}
@@ -204,7 +205,7 @@ public class Graph extends JPanel implements MouseListener{
 		if(ylower < y && y < yupper){
 			return xbin % 2;
 		}
-		return 0;
+		return -1;
 	}
 	
 	@Override
