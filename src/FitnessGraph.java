@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.geom.*;
 import javax.swing.*;
 
+@SuppressWarnings("serial")
 public class FitnessGraph extends JPanel{
 	int[] fitchart;
 	int[] weakchart;

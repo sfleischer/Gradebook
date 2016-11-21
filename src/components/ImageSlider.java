@@ -1,24 +1,18 @@
 package components;
 
 import java.awt.Color;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-
-import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 /**
  * This class takes an image as an argument and creates a slider over it.
  * @author sfleischer
  * @version created 11/17/16
  */
+@SuppressWarnings("serial")
 public class ImageSlider extends ColorSlider{
 	
 	BufferedImage image;

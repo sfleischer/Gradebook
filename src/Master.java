@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 
 import javax.swing.*;
 
+@SuppressWarnings("serial")
 public class Master extends JPanel{
 	
 	public Master(){

@@ -18,6 +18,7 @@ import java.awt.Color;
 import java.awt.Component;
 import components.*;
 
+@SuppressWarnings("serial")
 public class NavigationPanel extends JPanel{
 	
 	final String[] labels;

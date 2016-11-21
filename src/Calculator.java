@@ -62,7 +62,7 @@ public class Calculator {
 	}
 	
 	public int[] findDistribution(){
-		int[][] population = generateFirstPopulation(min, max, people, 50);
+		int[][] population = generateFirstPopulation(min, max, people, popSize);
 		int i = 0;
 		do {
 			int[][] fittest = findTheFittest(population);

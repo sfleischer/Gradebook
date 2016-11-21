@@ -3,17 +3,16 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.*;
-import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 import components.Moveable;
 import components.*;
 
+@SuppressWarnings("serial")
 public class Graph extends JPanel implements MouseListener{
 	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 7321566779811779800L;
 	
 	public static final int STD = 4;
 	public static final int ORIGIN_X = 100;
@@ -133,13 +132,16 @@ public class Graph extends JPanel implements MouseListener{
 			
 			int index = i % 2;
 			g2.setColor(colorBar[index]);
+			String num = Integer.toString(grades[i]);
+			int font_width = g2.getFontMetrics().stringWidth(num);
+			double space = (xunit - font_width)/2.0;
 
 			g2.fill(new Rectangle2D.Double(xstart + i*xunit+HIST_SPACE,
 					ystart - (grades[i]/max)/max_frequency*ylength, 
 					xunit - HIST_SPACE,
 					(grades[i]/max)/max_frequency*ylength));
-			g2.drawString(Integer.toString(grades[i]), 
-					(int) (xstart + (i+.2)*xunit+HIST_SPACE), 
+			g2.drawString(num, 
+					(int) (xstart + i*xunit+HIST_SPACE + space), 
 					(int) (ystart - (grades[i]/max)/max_frequency*ylength - 5));
 			//g2.drawString(Integer.toString((int) (i*interval)), (int) (xstart+i*xunit)-8, ystart+20);
 		}
@@ -189,7 +191,6 @@ public class Graph extends JPanel implements MouseListener{
 	}
 
 	private int getBarColorIndex(Point p){
-		int numBins = grades.length;
 		double max = maxval(grades);
 		
 		double x = p.getX();

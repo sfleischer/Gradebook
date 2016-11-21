@@ -1,4 +1,3 @@
-import javax.swing.JTextField;
 
 public class GraphState {
 	private double STD;
