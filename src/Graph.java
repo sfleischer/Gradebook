@@ -7,12 +7,17 @@ import javax.swing.JPanel;
 import components.Moveable;
 import components.*;
 
+/**
+ * This class graphs the Histogram. When a user clicks on a bar, a GradientPanel will
+ * appear to allow the user to change the color of the bar. This class does not have
+ * a laymout manager, which allows the user can move the GradientPanel over the Graph
+ * panel.
+ * @author sfleischer
+ *
+ */
 @SuppressWarnings("serial")
 public class Graph extends JPanel implements MouseListener{
 	
-	/**
-	 * 
-	 */
 	
 	public static final int STD = 4;
 	public static final int ORIGIN_X = 100;
@@ -47,6 +52,7 @@ public class Graph extends JPanel implements MouseListener{
 		this.setLayout(null);
 	}
 	
+	@Override
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		
@@ -82,7 +88,7 @@ public class Graph extends JPanel implements MouseListener{
 			String label = Integer.toString((int) (i*interval));
 			textwidth = g2.getFontMetrics().stringWidth(label);
 			
-			//if there is enough space, write the label
+			//if there is enough space, write the hashmark
 			if(availablespace > 0){
 				g2.drawString(label, (int) ((xstart+i*xunit)-textwidth/2), y+20);
 				availablespace = -textwidth/2;
@@ -90,7 +96,7 @@ public class Graph extends JPanel implements MouseListener{
 			availablespace += xunit/2;
 		}
 		
-		//if the number 100 wasn't printed on the X axis, force print one
+		//if the hashtick 100 wasn't printed on the X axis, force print one
 		if(100 % interval != 0 && availablespace > 0){
 			g2.draw(new Line2D.Double(xstart + xlength, y-tickheight, xstart + xlength, y+tickheight));
 			g2.drawString(Integer.toString(100), (int) (xstart+xlength)-8, y+20);
@@ -104,15 +110,21 @@ public class Graph extends JPanel implements MouseListener{
 	 * @param maxf the highest frequency that appears on the y axis
 	 */
 	public void drawYAxis(Graphics2D g2, int space, double maxf){
+		//update instance variables
 		ylength = getHeight() - ORIGIN_Y - END_SPACE/2;
 		ystart = getHeight()-ORIGIN_Y;
-		int x = ORIGIN_X;
 		yunit = ylength/space;
+		
+		//prepare local variables
+		int x = ORIGIN_X;
 		double tickheight = 5;
+		
+		//draw Y axis
 		g2.draw(new Line2D.Double(x, ystart, x, ystart-ylength));
 		
 		int numDigits = numDigits(maxf/space);
-		//System.out.println(""+numDigits);
+		
+		//draw the tick and appropriate hashmarks
 		for(int i = 1; i <= space; i++){
 			g2.draw(new Line2D.Double(x-tickheight, ystart-yunit*i, x+tickheight, ystart-yunit*i));
 			double val = Math.round(maxf*i/space*Math.pow(10, numDigits))/Math.pow(10, numDigits);
@@ -121,12 +133,13 @@ public class Graph extends JPanel implements MouseListener{
 	}
 	
 	/**
-	 * 
+	 * This method updates the state of the Graph and calls repaint() to repaint the Graph
 	 * @param g The distribution of grades. Each index of the array corresponds to a bin on the 
 	 * histogram. The values in the grades refers to the frequency of grades ie [0,.2,.3,.2,.3]. 
 	 * The sum of the frequencies should add up to 1.
-	 * @param spacing
+	 * @param spacing The spacing between ticks on the x-axis (spacing of 10 is 10, 20, ... 100)
 	 * @param maxf The highest frequency on the graph
+	 * @param div The number of divisions on the y axis (10 divisions list 1.0, 0.9, ... 0.1)
 	 */
 	public void drawHistogram(int[] g, double xspacing, int xmax, double maxf, int div){
 		int roughspace = (int) (100/xspacing);
@@ -139,20 +152,31 @@ public class Graph extends JPanel implements MouseListener{
 		repaint();
 	}
 	
+	/**
+	 * Draws the histogram bars with the appropriate frequency on top
+	 * @param g2 The graphics to be passed in 
+	 */
 	public void drawHistogramBars(Graphics2D g2){
+		//prepare local variables
 		int numBins = grades.length;
-		double max = maxval(grades);
+		double max = maxval(grades); //find the highest frequency bar
+		
+		//iterate through all the bins and draw each histogram bar
 		for(int i = 0; i < numBins; i++){
+			//if the bar height is 0, don't draw it
 			if(grades[i] == 0)
 				continue;
 
-			
+			//find the color of the bar
 			int index = i % 2;
 			g2.setColor(colorBar[index]);
+			
+			//find the text width of every bar frequency
 			String num = Integer.toString(grades[i]);
 			int font_width = g2.getFontMetrics().stringWidth(num);
 			double space = (xunit - font_width)/2.0;
 
+			//fill and draw the bar
 			g2.fill(new Rectangle2D.Double(xstart + i*xunit+HIST_SPACE,
 					ystart - (grades[i]/max)/max_frequency*ylength, 
 					xunit - HIST_SPACE,
@@ -160,25 +184,19 @@ public class Graph extends JPanel implements MouseListener{
 			g2.drawString(num, 
 					(int) (xstart + i*xunit+HIST_SPACE + space), 
 					(int) (ystart - (grades[i]/max)/max_frequency*ylength - 5));
-			//g2.drawString(Integer.toString((int) (i*interval)), (int) (xstart+i*xunit)-8, ystart+20);
 		}
+		
+		//print the sum of all frequencies on the bottom
 		g2.setColor(Color.black);
 		g2.drawString(Integer.toString(sum(grades)), (int) (xstart+xlength-20), ystart+50);
 		
 	}
 	
-	/*
-	public void setBarColor1(Color b){
-		bar1 = b;
-		repaint();
-	}
-	
-	public void setBarColor2(Color b){
-		bar2 = b;
-		repaint();
-	}
-	*/
-	
+	/**
+	 * Finds the maximum value in an array
+	 * @param array The array to find the max value of
+	 * @return The maximum value
+	 */
 	private int maxval(int[] array){
 		int max = array[0];
 		for(int n : array){
@@ -187,6 +205,11 @@ public class Graph extends JPanel implements MouseListener{
 		return max;
 	}
 	
+	/**
+	 * Sums the elements of an array
+	 * @param array The array to be summed
+	 * @return The sum
+	 */
 	private int sum(int[] array){
 		int total = 0;
 		for(int n : array){
@@ -196,8 +219,9 @@ public class Graph extends JPanel implements MouseListener{
 	}
 	
 	/**
-	 * 
-	 * @param num
+	 * Gets the number of digits given a double. If the number of digits after the decimal
+	 * is greater than 4, then the method caps the digit count at 4
+	 * @param num the number to count the digits
 	 * @return finds the number of digits in a double
 	 */
 	private int numDigits(double num){
@@ -207,6 +231,11 @@ public class Graph extends JPanel implements MouseListener{
 		return length < 4 ? length : 4;
 	}
 
+	/**
+	 * Gets the index of the color bar that the point is over.
+	 * @param p The point that is over the color bar
+	 * @return The index of the color bar array that corresponds to the appropriate bar
+	 */
 	private int getBarColorIndex(Point p){
 		double max = maxval(grades);
 		
@@ -224,6 +253,16 @@ public class Graph extends JPanel implements MouseListener{
 			return xbin % 2;
 		}
 		return -1;
+	}
+	
+	/**
+	 * Closes the GradientPanel. Closing can be done from the GradientPanel itself or
+	 * it can be forcefully closed from the Navigation Panel
+	 */
+	public void closeGradient(){
+		remove(gradient);
+		gradient = null;
+		repaint();
 	}
 	
 	@Override
@@ -263,6 +302,13 @@ public class Graph extends JPanel implements MouseListener{
 		// TODO Auto-generated method stub
 	}
 	
+	/**
+	 * This handling class is designed for GradientPanel. It allows gradient panel
+	 * to move around within the window of the Graph panel without accessing all of
+	 * Graph panel's methods.
+	 * @author sfleischer
+	 *
+	 */
 	private class MoveHandler implements Moveable{
 
 		@Override
@@ -276,9 +322,7 @@ public class Graph extends JPanel implements MouseListener{
 
 		@Override
 		public void close() {
-			remove(gradient);
-			gradient = null;
-			repaint();
+			closeGradient();
 		}
 		
 		public void update(){

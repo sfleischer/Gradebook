@@ -121,6 +121,12 @@ public class NavigationPanel extends JPanel{
 		updateContainer.add(updateButton);
 		buttonPanel.add(updateButton);
 		
+		JButton clearButton = new JButton("Clear");
+		clearButton.addActionListener(new ClearHandler());
+		JPanel clearContainer = new JPanel();
+		clearContainer.add(clearButton);
+		buttonPanel.add(clearButton);
+		
 		/*
 		JButton geneticsButton = new JButton("Update Evolution");
 		updateButton.addActionListener(new UpdateHandler());
@@ -357,6 +363,7 @@ public class NavigationPanel extends JPanel{
 	private class FitnessHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e){
+			//create a new frame to show the fitness chart
 			JFrame frame = new JFrame("Fitness Chart");
 			frame.setContentPane(new FitnessGraph(
 					calculator.getFitchart(), calculator.getWeakchart()));
@@ -383,6 +390,28 @@ public class NavigationPanel extends JPanel{
 			updateLabels(state);
 		}
 		
+	}
+	
+	/**
+	 * Handles the event for the Clear Button. If the user clicks this, the histogram
+	 * should be cleared as well as any Gradient Panel on the screen.
+	 * @author sfleischer
+	 *
+	 */
+	private class ClearHandler implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e){
+			GraphState state = getTextFieldParams();
+			int[] temp = new int[(int) (100.0/state.getXSpacing())];
+			
+			//must fill the array before clearing the graph or else bad things happen
+			for(int i = 0; i < temp.length; i++){
+				temp[i] = 0;
+			}
+			//clear the graph
+			graph.drawHistogram(temp, state.getXSpacing(), 100, 1.0, (int) state.getYTicks());
+			graph.closeGradient();
+		}
 	}
 	
 	private class ColorHandler implements ActionListener
