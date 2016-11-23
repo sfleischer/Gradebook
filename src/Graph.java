@@ -57,31 +57,48 @@ public class Graph extends JPanel implements MouseListener{
 	}
 	
 	/**
-	 * 
+	 * Draws the X Axis of the histogram with appropriate tick spacing
 	 * @param g2 Graphics2D
 	 * @param interval The spacing between grades on the histogram
 	 */
 	public void drawXAxis(Graphics2D g2, double interval){
+		//update instance values
 		xlength = getWidth() - ORIGIN_X - END_SPACE;
 		xstart = ORIGIN_X;
-		int y = getHeight()-ORIGIN_Y;
 		xunit = xlength*interval/100;
-		double tickheight = 5;
+		
+		//prepare local values
+		int y = getHeight()-ORIGIN_Y;
+		double tickheight = 5;  //the height of the tick marks
+		double textwidth = g2.getFontMetrics().stringWidth("99"); //the width of each label
+		double availablespace = xunit; //the available space to write such label
 		g2.draw(new Line2D.Double(xstart, y, xstart+xlength, y));
 		
+		//draw the tick marks with appropriate labels
 		for(double i = 0; i <= 100/interval; i++){
+			//draw the tick
 			g2.draw(new Line2D.Double(xstart + i*xunit, y-tickheight, 
 					xstart + i*xunit, y+tickheight));
-			g2.drawString(Integer.toString((int) (i*interval)), (int) (xstart+i*xunit)-8, y+20);
+			String label = Integer.toString((int) (i*interval));
+			textwidth = g2.getFontMetrics().stringWidth(label);
+			
+			//if there is enough space, write the label
+			if(availablespace > 0){
+				g2.drawString(label, (int) ((xstart+i*xunit)-textwidth/2), y+20);
+				availablespace = -textwidth/2;
+			}
+			availablespace += xunit/2;
 		}
-		if(100 % interval != 0){
+		
+		//if the number 100 wasn't printed on the X axis, force print one
+		if(100 % interval != 0 && availablespace > 0){
 			g2.draw(new Line2D.Double(xstart + xlength, y-tickheight, xstart + xlength, y+tickheight));
 			g2.drawString(Integer.toString(100), (int) (xstart+xlength)-8, y+20);
 		}
 	}
 	
 	/**
-	 * 
+	 * Draws the Y Axis of the Histogram with appropriate tick spacing
 	 * @param g2 Graphics2D
 	 * @param space the number of spaces on the y axis
 	 * @param maxf the highest frequency that appears on the y axis
