@@ -315,7 +315,6 @@ public class Graph extends JPanel implements MouseListener{
 		public void move(int dx, int dy) {
 			if(gradient == null)
 				throw new RuntimeException("Gradient is null?");
-			//Rectangle rect = gradient.getBounds();
 			gradient.setBounds(dx - getInsets().right, dy - getInsets().top, 
 					GradientPanel.WIDTH, GradientPanel.HEIGHT);
 		}

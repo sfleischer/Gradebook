@@ -53,8 +53,9 @@ public class NavigationPanel extends JPanel{
 		fitlabels = new String[]{"fitness rank", "diversity rank", 
 				"fitdiverse rank","tailed fitness rank"};
 		graph = g;
-		this.setMaximumSize(new Dimension(400,1000));
-		this.setMinimumSize(new Dimension(300,1000));
+		//this.setMaximumSize(new Dimension(400,1000));
+		//this.setMinimumSize(new Dimension(300,1000));
+		//this.setPreferredSize(new Dimension(300, 1000));
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		initialize();
 		calculator = getCalculator();
@@ -366,8 +367,10 @@ public class NavigationPanel extends JPanel{
 			//create a new frame to show the fitness chart
 			JFrame frame = new JFrame("Fitness Chart");
 			frame.setContentPane(new FitnessGraph(
-					calculator.getFitchart(), calculator.getWeakchart()));
-			frame.setMinimumSize(new Dimension(500,500));
+					calculator.getFitchart(), calculator.getWeakchart(), 
+					getTextFieldParams().getThreshold()));
+			//frame.setMinimumSize(new Dimension(500,500));
+			frame.pack();
 			frame.setVisible(true);
 		}
 	}

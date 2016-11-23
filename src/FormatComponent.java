@@ -46,8 +46,8 @@ public class FormatComponent {
 			l.setOpaque(true);
 			
 			JTextField field = new JTextField();
-			field.setMaximumSize(new Dimension(150,20));
-			field.setMinimumSize(new Dimension(150,20));
+			field.setPreferredSize(new Dimension(150,20));
+			//field.setMinimumSize(new Dimension(150,20));
 			//field.setBackground(foreground);
 			field.setName(label);
 			field.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -56,18 +56,17 @@ public class FormatComponent {
 			fields.add(field);
 			
 			JPanel f = new JPanel(new BorderLayout());
-			f.setMinimumSize(new Dimension(150,35));
+			//f.setMinimumSize(new Dimension(150,35));
 			f.setPreferredSize(new Dimension(150,35));
 			f.setMaximumSize(new Dimension(150,35));
-			//f.setBackground(background);
 			f.add(field);
 			
 			JPanel fieldContainer = new JPanel();
 			fieldContainer.setLayout(new BoxLayout(fieldContainer, BoxLayout.Y_AXIS));
 			//fieldContainer.add(Box.createVerticalStrut(50));
 			fieldContainer.setPreferredSize(new Dimension(150,35));
-			fieldContainer.setMinimumSize(new Dimension(150,35));
-			fieldContainer.setMaximumSize(new Dimension(150,35));
+			//fieldContainer.setMinimumSize(new Dimension(150,35));
+			//fieldContainer.setMaximumSize(new Dimension(150,35));
 			fieldContainer.add(Box.createVerticalGlue());
 			fieldContainer.add(f);
 			//fieldContainer.setBackground(background);
