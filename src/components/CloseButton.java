@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 
+@SuppressWarnings("serial")
 public class CloseButton extends JPanel implements MouseListener {
 
 	ArrayList<ActionListener> list;

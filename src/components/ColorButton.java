@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 
+@SuppressWarnings("serial")
 public class ColorButton extends JPanel implements MouseListener {
 
 	ArrayList<ActionListener> list = new ArrayList<ActionListener>();

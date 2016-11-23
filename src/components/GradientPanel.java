@@ -1,7 +1,6 @@
 package components;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -21,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+@SuppressWarnings("serial")
 public class GradientPanel extends JPanel implements MouseListener, MouseMotionListener{
 	
 	Color[] colors; //current color of the panel

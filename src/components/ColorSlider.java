@@ -13,6 +13,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 
+@SuppressWarnings("serial")
 public class ColorSlider extends JPanel implements Slidable{
 	
 	List<ChangeListener> list = new ArrayList<ChangeListener>();
