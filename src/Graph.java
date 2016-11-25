@@ -101,6 +101,12 @@ public class Graph extends JPanel implements MouseListener{
 			g2.draw(new Line2D.Double(xstart + xlength, y-tickheight, xstart + xlength, y+tickheight));
 			g2.drawString(Integer.toString(100), (int) (xstart+xlength)-8, y+20);
 		}
+		
+		//draw x-axis label
+		String message = "Score";
+		textwidth = g2.getFontMetrics().stringWidth(message);
+		g2.drawString("Generations", (int) (xstart + xlength/2 - textwidth/2), 
+				y + ORIGIN_Y/2);
 	}
 	
 	/**
@@ -116,20 +122,30 @@ public class Graph extends JPanel implements MouseListener{
 		yunit = ylength/space;
 		
 		//prepare local variables
-		int x = ORIGIN_X;
 		double tickheight = 5;
 		
 		//draw Y axis
-		g2.draw(new Line2D.Double(x, ystart, x, ystart-ylength));
+		g2.draw(new Line2D.Double(ORIGIN_X, ystart, ORIGIN_X, ystart-ylength));
 		
 		int numDigits = numDigits(maxf/space);
 		
 		//draw the tick and appropriate hashmarks
 		for(int i = 1; i <= space; i++){
-			g2.draw(new Line2D.Double(x-tickheight, ystart-yunit*i, x+tickheight, ystart-yunit*i));
+			g2.draw(new Line2D.Double(ORIGIN_X-tickheight, ystart-yunit*i, ORIGIN_X+tickheight, ystart-yunit*i));
 			double val = Math.round(maxf*i/space*Math.pow(10, numDigits))/Math.pow(10, numDigits);
-			g2.drawString(Double.toString(val), x - 20 - 8*numDigits, (int) (ystart-yunit*i)+6);
+			g2.drawString(Double.toString(val), ORIGIN_X - 20 - 8*numDigits, (int) (ystart-yunit*i)+6);
 		}
+		
+		//draw the y-axis label 
+		String message = "Frequency";
+		double textwidth = g2.getFontMetrics().stringWidth(message);
+		float x = ORIGIN_X - 20 - 8*numDigits - 10;
+		float y = (float) (ystart - ylength/2 + textwidth/2);
+		g2.translate(x, y);
+	    g2.rotate(-Math.toRadians(90));
+	    g2.drawString(message, 0, 0);
+	    g2.rotate(Math.toRadians(90));
+	    g2.translate(-x,-y);
 	}
 	
 	/**
@@ -178,12 +194,12 @@ public class Graph extends JPanel implements MouseListener{
 
 			//fill and draw the bar
 			g2.fill(new Rectangle2D.Double(xstart + i*xunit+HIST_SPACE,
-					ystart - (grades[i]/max)/max_frequency*ylength, 
+					ystart - (grades[i]/max)/1.0*ylength, 
 					xunit - HIST_SPACE,
-					(grades[i]/max)/max_frequency*ylength));
+					(grades[i]/max)/1.0*ylength));
 			g2.drawString(num, 
 					(int) (xstart + i*xunit+HIST_SPACE + space), 
-					(int) (ystart - (grades[i]/max)/max_frequency*ylength - 5));
+					(int) (ystart - (grades[i]/max)/1.0*ylength - 5));
 		}
 		
 		//print the sum of all frequencies on the bottom
@@ -260,7 +276,9 @@ public class Graph extends JPanel implements MouseListener{
 	 * it can be forcefully closed from the Navigation Panel
 	 */
 	public void closeGradient(){
-		remove(gradient);
+		if(gradient != null){
+			remove(gradient);
+		}
 		gradient = null;
 		repaint();
 	}

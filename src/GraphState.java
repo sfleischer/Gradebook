@@ -1,5 +1,4 @@
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
+
 
 public class GraphState {
 	private double STD;
@@ -38,41 +37,51 @@ public class GraphState {
 		population = 50;
 	}
 	
-	private static void generateWarning(String title, String message){
-		JOptionPane.showMessageDialog(new JFrame(),  
-				message, 
-				title,
-				JOptionPane.WARNING_MESSAGE);
+	
+	
+	public void setSTD(double s){ 
+		if(s < 0){
+			throw new IllegalArgumentException("Standard Deviation must be positive");
+		}
+		STD = s; 
 	}
 	
-	public void setSTD(double s)	{ STD = s; }
-	public void setMean(double m)	{ mean = m; }
-	public void setMedian(double m)	{ median = m; }
+	public void setMean(double m) {
+		if(m < 0 || m > 100)
+			throw new IllegalArgumentException("Mean must be between 0 and 100");
+		mean = m; 
+	}
+	
+	public void setMedian(double m)	{ 
+		if(m < 0 || m > 100)
+			throw new IllegalArgumentException("Median must be between 0 and 100");
+		median = m; 
+	}
 	
 	public void setMin(double m){ 
 		if(m < 0 || m > 100){
-			generateWarning("Min Warning", "Min should be between 0 and 100");
+			throw new IllegalArgumentException("Min must be between 0 and 100");
 		}
-		min = m > 100 ? 100 : m;
-		min = m < 0 ? 0 : min;
+		min = m;
 	}
 	
 	public void setMax(double m){
 		if(m < 0 || m > 100){
-			generateWarning("Max Warning", "Max should be between 0 and 100");
+			throw new IllegalArgumentException(
+					"Max should be between 0 and 100");
 		}
-		max = m > 100 ? 100 : m;
-		max = m < 0 ? 0 : max;
+		max = m;
 	}
 	
 	public void setPeople(int p){
 		if(p < 0){
-			generateWarning("People Warning", "Cannot have negative people");
+			throw new IllegalArgumentException(
+					"There cannot be negative people");
 		} else if(p > 1000){
-			generateWarning("People Warning", "Cannot handle more than a 1000 people");
+			throw new IllegalArgumentException(
+					"Program cannot handle more than 1000 people");
 		}
-		people = p > 1000 ? 1000 : p;
-		people = p < 0 ? 0 : people;
+		people = p;
 	}
 	
 	public void setPersonal(double p){ personal = p; }
@@ -81,16 +90,32 @@ public class GraphState {
 	public void setYTicks(double y)		{ yticks = y; }
 	public void setIntensity(boolean b)	{ intensity = b; }
 	
-	public void setGenerations(int g)   { generations = g; }
+	public void setGenerations(int g){ 
+		if(g < 0){
+			throw new IllegalArgumentException("Generations cannot be negative");
+		} else if (g > 1000){
+			throw new IllegalArgumentException("Too many Generations. Limit is 1000.");
+		}
+		generations = g; 
+	}
+	
 	public void setMutation(double m)   { mutation = m; }
 	public void setThreshold(int t){
-		if(threshold < 0 || threshold > 1000){
-			generateWarning("Threshold Warning", "Threshold is between 0 and 1000");
+		if(t < 0 || t > 1000){
+			throw new IllegalArgumentException("Threshold must be between 0 and 1000");
 		}
-		threshold = t > 1000 ? 1000 : t; 
-		threshold = t < 0 ? 0 : threshold;
+		threshold = t;
 	}
-	public void setPopulation(int p)    { population = p; }
+	
+	public void setPopulation(int p){
+		if(p < 0){
+			throw new IllegalArgumentException("Population cannot be negative");
+		} else if(p > 500){
+			throw new IllegalArgumentException(
+					"Too high a population. Population must be at most 500");
+		}
+		population = p; 
+	}
 	
 	
 	/*

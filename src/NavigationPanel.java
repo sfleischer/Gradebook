@@ -19,8 +19,11 @@ public class NavigationPanel extends JPanel{
 	final String[] results;
 	final String[] genetics;
 	final String[] fitlabels;
+	final String[] intensities;
 	int[] fitness = {};
 	int[] distribution = {};
+	boolean absoluteIntensity = true;
+	
 	Graph graph;
 	ArrayList<JTextField> fields = new ArrayList<JTextField>();
 	ArrayList<JSlider> sliders = new ArrayList<JSlider>();
@@ -32,16 +35,11 @@ public class NavigationPanel extends JPanel{
 	static final int TICK_MAX = 255;
 	static final int TICK_INIT = 0;
 	static final int TICK_MAJOR = 50;
-	
-	final Color background = Color.gray;
-	final Color foreground = Color.white;
+
 	
 	JPanel sliderPanel = new JPanel();
 	ColorRadioButtonGroup crbg = new ColorRadioButtonGroup();
 	
-	int red = 0;
-	int green = 0;
-	int blue = 0;
 	
 	public NavigationPanel(Graph g){
 		super();
@@ -52,6 +50,7 @@ public class NavigationPanel extends JPanel{
 		genetics = new String[]{" Generations", " Threshold", " Population"};
 		fitlabels = new String[]{"fitness rank", "diversity rank", 
 				"fitdiverse rank","tailed fitness rank"};
+		intensities = new String[]{"Absolute", "Relative"};
 		graph = g;
 		//this.setMaximumSize(new Dimension(400,1000));
 		//this.setMinimumSize(new Dimension(300,1000));
@@ -80,27 +79,35 @@ public class NavigationPanel extends JPanel{
 		//inputPanel.setBackground(background);
 		//inputPanel.setBorder(BorderFactory.createLineBorder(Color.gray, 3));
 		FormatComponent.addTextFields(
-				inputPanel, fields, labels, background, foreground, "Statistics:");
+				inputPanel, fields, labels, "Statistics:");
 		
 		//the panel to display the graph metrics (x spacing, etc)
 		JPanel graphMetrics = new JPanel();
 		graphMetrics.setLayout(new BoxLayout(graphMetrics, BoxLayout.PAGE_AXIS));
 		FormatComponent.addTextFields(
-				graphMetrics, fields, metrics, background, foreground, "Metrics:");
+				graphMetrics, fields, metrics, "Metrics:");
+		//JPanel radioLabel = new JPanel(new GridLayout(1,2));
+		//JLabel label = new JLabel("Intensity:");
+		//radioLabel.add(label);
+		FormatComponent.addRadioButtons(
+				graphMetrics, new IntensityHandler(), intensities);
+		//graphMetrics.add(radioLabel);
 		
 		//the stats of the graph generated and the percentile of the input score
 		JPanel graphResults = new JPanel();
 		graphResults.setLayout(new BoxLayout(graphResults, BoxLayout.PAGE_AXIS));
 		//graphResults.setBorder(BorderFactory.createLineBorder(Color.gray, 3));
-		FormatComponent.addLabels(graphResults, outputs, results, background,
-				foreground, "Results:");
+		FormatComponent.addLabels(graphResults, outputs, results, "Results:");
 		
 		//the panel to display genetic algorithm parameters
 		JPanel geneticMetrics = new JPanel();
 		geneticMetrics.setLayout(new BoxLayout(geneticMetrics, BoxLayout.PAGE_AXIS));
 		FormatComponent.addTextFields(
-				geneticMetrics, fields, genetics, background, foreground, "Genetics:");
+				geneticMetrics, fields, genetics, "Genetics:");
+		//JPanel radioWrapper = new JPanel();
+		//radioWrapper.setMaximumSize(new Dimension(this.getSize()));
 		FormatComponent.addRadioButtons(geneticMetrics, new RadioHandler(), fitlabels);
+		//geneticMetrics.add(radioWrapper);
 		
 		//buttons
 		JPanel buttonPanel = new JPanel(new GridLayout(2,2));
@@ -128,27 +135,17 @@ public class NavigationPanel extends JPanel{
 		clearContainer.add(clearButton);
 		buttonPanel.add(clearButton);
 		
-		/*
 		JButton geneticsButton = new JButton("Update Evolution");
-		updateButton.addActionListener(new UpdateHandler());
-		buttonPanel.add(updateButton);
-		*/
+		geneticsButton.addActionListener(new EvolutionHandler());
+		JPanel geneticsContainer = new JPanel();
+		geneticsContainer.add(geneticsButton);
+		geneticMetrics.add(geneticsContainer);
 		
-		//initializeColorSliders();
-		
-		graphMetrics.add(updateContainer);
-		
-		//graphResults.add(generateContainer);
-		//graphResults.add(fitnessContainer);
-		//graphResults.add(Box.createRigidArea(new Dimension(10,20)));
 		
 		statsPanel.add(inputPanel);
 		statsPanel.add(graphResults);
 		statsPanel.add(graphMetrics);
 		statsPanel.add(buttonPanel);
-		//statsPanel.add(generateContainer);
-		//statsPanel.add(fitnessContainer);
-		//statsPanel.add(geneticMetrics);
 		
 		//INSTRUCTIONS TAB PREPARATION
 		JScrollPane instructions = new JScrollPane(new Instructions());
@@ -158,9 +155,9 @@ public class NavigationPanel extends JPanel{
 		//optionsPanel.add(new JLabel("Graph Metrics:"));
 		//optionsPanel.add(graphMetrics);
 		optionsPanel.add(geneticMetrics);
-		optionsPanel.add(initializeWeights());
+		//optionsPanel.add(initializeWeights());
 		//optionsPanel.add(geneticMetrics);
-		optionsPanel.add(createColorPanel());
+		//optionsPanel.add(createColorPanel());
 		//optionsPanel.add(sliderPanel);
 		
 		tabbedPane.addTab("Stats", statsPanel);
@@ -186,7 +183,7 @@ public class NavigationPanel extends JPanel{
 	public void initializeColorSliders(){
 		sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.PAGE_AXIS));
 		
-		JSlider redSlider = new JSlider(JSlider.HORIZONTAL,
+		/*JSlider redSlider = new JSlider(JSlider.HORIZONTAL,
                 TICK_MIN, TICK_MAX, TICK_INIT);
 		redSlider.setName("red");
 		redSlider.addChangeListener(new SliderHandler());
@@ -213,7 +210,6 @@ public class NavigationPanel extends JPanel{
 		blueSlider.setMajorTickSpacing(TICK_MAJOR);
 		blueSlider.setPaintTicks(true);
 		blueSlider.setOpaque(true);
-		//blueSlider.setBackground(Color.blue);
 		blueSlider.setForeground(Color.blue);
 		blueSlider.setPaintLabels(true);
 
@@ -223,7 +219,7 @@ public class NavigationPanel extends JPanel{
 		
 		sliderPanel.add(redSlider);
 		sliderPanel.add(greenSlider);
-		sliderPanel.add(blueSlider);
+		sliderPanel.add(blueSlider);*/
 	}
 	
 	public JPanel createColorPanel(){
@@ -256,12 +252,36 @@ public class NavigationPanel extends JPanel{
 	  return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
 	}
 	
-	public GraphState getTextFieldParams(){
+	private static boolean contains(String[] array, String target){
+		for(String s : array){
+			if(s.equals(target))
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns the graph state of the program by reading the text fields in the program.
+	 * The user can input the name of a specific text field to get the parameter for that
+	 * text field or null to get all the text fields.
+	 *  
+	 * @param target The specific text field the user wishes to get the value of. If null
+	 * then the entire graph state is returned.
+	 * @return The graph state of the program.
+	 */
+	public GraphState getTextFieldParams(String[] targets){
+		//create a new GraphState
 		GraphState state = new GraphState();
+		
+		//Iterate through all the textfields and locate appropriate fields
 		for(JTextField field : fields){
 			String text = field.getText();
+			//skip over this one if the input isn't a number
 			if(!isNumeric(text))
 				continue;
+			if(targets != null && !contains(targets, field.getName())){
+				continue;
+			}
 			double num = Double.parseDouble(text);
 			switch(field.getName()){
 				case " STD":
@@ -279,7 +299,7 @@ public class NavigationPanel extends JPanel{
 				case " X spacing":
 					state.setXSpacing(num); break;
 				case " # y ticks":
-					state.setYTicks( num); break;
+					state.setYTicks(num); break;
 				case " personal score" :
 					state.setPersonal(num); break;
 				case " Generations" :
@@ -288,13 +308,23 @@ public class NavigationPanel extends JPanel{
 					state.setThreshold((int) num);
 				case " Population" :
 					state.setPopulation((int) num);
-			}
+			}		
 		}
+		state.setIntensity(absoluteIntensity);
 		return state;
 	}
 	
-	public Calculator getCalculator(){
-		GraphState state = getTextFieldParams();
+	
+	private static void generateWarning(String title, String message){
+		JOptionPane.showMessageDialog(new JFrame(),  
+				message, 
+				title,
+				JOptionPane.WARNING_MESSAGE);
+	}
+	
+	
+	public Calculator getCalculator() throws IllegalArgumentException {
+		GraphState state = getTextFieldParams(null);
 		return new Calculator(state.getMin(), state.getMax(), state.getMean(),
 				state.getMedian(), state.getSTD(), state.getPeople());
 	}
@@ -340,24 +370,31 @@ public class NavigationPanel extends JPanel{
 	{
 		public void actionPerformed(ActionEvent e){
 			//find the parameters from the text fields and create a new calculator
-			GraphState state = getTextFieldParams();
-			Calculator calc = getCalculator();
+			try{
+				GraphState state = getTextFieldParams(null);
+				Calculator calc = getCalculator();
 			
-			//if the old calculator does not equal the new calculator, regenerate the whole thing
-			if(!calculator.equals(calc)){
-				calculator = calc;
-				distribution = calculator.findDistribution();
-				int[] dist = calculator.generateHistogram(distribution, state.getXSpacing());
-				graph.drawHistogram(dist, state.getXSpacing(), 100, 1.0, (int) state.getYTicks());
-			} 
 			
-			//if the old and new calculators are the same, then just update the graph with
-			//new parameters
-			else {
-				int[] dist = calculator.generateHistogram(distribution, state.getXSpacing());
-				graph.drawHistogram(dist, state.getXSpacing(), 100, 1.0, (int) state.getYTicks());
+				//if the old calculator does not equal the new calculator, regenerate the whole thing
+				if(!calculator.equals(calc)){
+					calculator = calc;
+					distribution = calculator.findDistribution();
+					int[] dist = calculator.generateHistogram(distribution, state.getXSpacing());
+					double freq = state.getIntensity() ? 1.0 : 1.0 * Calculator.getMax(dist)/state.getPeople();
+					graph.drawHistogram(dist, state.getXSpacing(), 100, freq, (int) state.getYTicks());
+				} 
+				
+				//if the old and new calculators are the same, then just update the graph with
+				//new parameters
+				else {
+					int[] dist = calculator.generateHistogram(distribution, state.getXSpacing());
+					double freq = state.getIntensity() ? 1.0 : 1.0 * Calculator.getMax(dist)/state.getPeople();
+					graph.drawHistogram(dist, state.getXSpacing(), 100, freq, (int) state.getYTicks());
+				}
+				updateLabels(state);
+			} catch (IllegalArgumentException o){
+				generateWarning("IllegalArgumentException", o.getMessage());
 			}
-			updateLabels(state);
 		}
 	}
 	
@@ -365,13 +402,17 @@ public class NavigationPanel extends JPanel{
 	{
 		public void actionPerformed(ActionEvent e){
 			//create a new frame to show the fitness chart
-			JFrame frame = new JFrame("Fitness Chart");
-			frame.setContentPane(new FitnessGraph(
-					calculator.getFitchart(), calculator.getWeakchart(), 
-					getTextFieldParams().getThreshold()));
-			//frame.setMinimumSize(new Dimension(500,500));
-			frame.pack();
-			frame.setVisible(true);
+			try{
+				JFrame frame = new JFrame("Fitness Chart");
+				frame.setContentPane(new FitnessGraph(
+						calculator.getFitchart(), calculator.getWeakchart(), 
+						getTextFieldParams(new String[]{" Threshold"}).getThreshold()));
+				//frame.setMinimumSize(new Dimension(500,500));
+				frame.pack();
+				frame.setVisible(true);
+			} catch (IllegalArgumentException o){
+				generateWarning("IllegalArgumentException", o.getMessage());
+			}
 		}
 	}
 	
@@ -383,14 +424,18 @@ public class NavigationPanel extends JPanel{
 	private class GenerateHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e){
-			GraphState state = getTextFieldParams();
-			calculator = new Calculator(state.getMin(), state.getMax(), state.getMean(),
-					state.getMedian(), state.getSTD(), state.getPeople());
-			distribution = calculator.findDistribution();
-			int[] dist = calculator.generateHistogram(distribution, state.getXSpacing());
-			//fitness = calc.getFitchart();
-			graph.drawHistogram(dist, state.getXSpacing(), 100, 1.0, (int) state.getYTicks());
-			updateLabels(state);
+			try{
+				GraphState state = getTextFieldParams(null);
+				calculator = new Calculator(state.getMin(), state.getMax(), state.getMean(),
+						state.getMedian(), state.getSTD(), state.getPeople());
+				distribution = calculator.findDistribution();
+				int[] dist = calculator.generateHistogram(distribution, state.getXSpacing());
+				double freq = state.getIntensity() ? 1.0 : 1.0 * Calculator.getMax(dist)/state.getPeople();
+				graph.drawHistogram(dist, state.getXSpacing(), 100, freq, (int) state.getYTicks());
+				updateLabels(state);
+			} catch (IllegalArgumentException o){
+				generateWarning("IllegalArgumentException", o.getMessage());
+			}
 		}
 		
 	}
@@ -404,16 +449,20 @@ public class NavigationPanel extends JPanel{
 	private class ClearHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e){
-			GraphState state = getTextFieldParams();
-			int[] temp = new int[(int) (100.0/state.getXSpacing())];
-			
-			//must fill the array before clearing the graph or else bad things happen
-			for(int i = 0; i < temp.length; i++){
-				temp[i] = 0;
+			try{
+				GraphState state = getTextFieldParams(new String[]{" X spacing"});
+				int[] temp = new int[(int) (100.0/state.getXSpacing())];
+				
+				//must fill the array before clearing the graph or else bad things happen
+				for(int i = 0; i < temp.length; i++){
+					temp[i] = 0;
+				}
+				//clear the graph
+				graph.drawHistogram(temp, state.getXSpacing(), 100, 1.0, (int) state.getYTicks());
+				graph.closeGradient();
+			} catch (IllegalArgumentException o){
+				generateWarning("IllegalArgumentException", o.getMessage());
 			}
-			//clear the graph
-			graph.drawHistogram(temp, state.getXSpacing(), 100, 1.0, (int) state.getYTicks());
-			graph.closeGradient();
 		}
 	}
 	
@@ -439,34 +488,17 @@ public class NavigationPanel extends JPanel{
 		
 	}
 	
-	private class SliderHandler implements ChangeListener
-	{
+	
+	private class IntensityHandler implements ActionListener{
+
 		@Override
-		public void stateChanged(ChangeEvent e) {
-			JSlider source = (JSlider)e.getSource();
-			
-			if(source == null)
-				return;
-			
-			switch(source.getName()) {
-			case "red" :
-				red = source.getValue();
+		public void actionPerformed(ActionEvent e) {
+			switch(e.getActionCommand()){
+			case "Absolute" :
+				absoluteIntensity = true;
 				break;
-			case "green" :
-				green = source.getValue();
-				break;
-			case "blue" :
-				blue = source.getValue();
-				break;
-			}
-			crbg.updateSelectedColor(red, green, blue);
-			
-			switch(crbg.getSelectedActionCommand()){
-			case "bar1" :
-				//graph.setBarColor1(new Color(red, green, blue));
-				break;
-			case "bar2" :
-				//graph.setBarColor2(new Color(red, green, blue));
+			case "Relative" :
+				absoluteIntensity = false;
 				break;
 			}
 		}
@@ -476,9 +508,14 @@ public class NavigationPanel extends JPanel{
 	private class EvolutionHandler implements ActionListener{
 		
 		public void actionPerformed(ActionEvent e){
-			GraphState state = getTextFieldParams();
-			calculator.setGenerations(state.getGenerations());
-			calculator.setThresold(state.getThreshold());
+			try{
+				GraphState state = getTextFieldParams(
+						new String[]{" Generations", " Threshold"});
+				calculator.setGenerations(state.getGenerations());
+				calculator.setThresold(state.getThreshold());
+			} catch (IllegalArgumentException o){
+				generateWarning("IllegalArgumentException", o.getMessage());
+			}
 		}
 	}
 	

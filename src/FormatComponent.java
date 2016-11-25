@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
@@ -24,13 +25,11 @@ public class FormatComponent {
 	 * @param list The list of strings to name the buttons/textfields
 	 */
 	public static void addTextFields(JPanel panel, ArrayList<JTextField> fields,
-			String[] list, Color background, Color foreground, String title){
+			String[] list, String title){
 		
 		JLabel titlelabel = new JLabel(title);
 		titlelabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		titlelabel.setHorizontalAlignment(SwingConstants.CENTER);
-		//titlelabel.setForeground(foreground);
-		//titlelabel.setBackground(background);
 		titlelabel.setOpaque(true);
 		//Font old = titlelabel.getFont();
 		Font header = new Font("Arial", Font.BOLD, 14);
@@ -88,7 +87,7 @@ public class FormatComponent {
 	 * @param list The list of labels to be added
 	 */
 	public static void addLabels(JPanel panel, ArrayList<JLabel> outputs, 
-			String[] list, Color background, Color foreground, String title){
+			String[] list, String title){
 		
 		JLabel titlelabel = new JLabel(title);
 		titlelabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -120,14 +119,24 @@ public class FormatComponent {
 	
 	public static void addRadioButtons(JPanel panel, ActionListener listener, String[] list){
 		ButtonGroup group = new ButtonGroup();
-		JPanel p = new JPanel(new GridLayout(2,2));
+		
+		int row = list.length/2;
+		int column = 2;
+		JPanel p = new JPanel();
+		if(list.length <= 2)
+			p.setLayout(new FlowLayout());
+		else
+			p.setLayout(new GridLayout(row, column));
 		for(String label : list){
 			JRadioButton button = new JRadioButton(label);
+			//JPanel container = new JPanel();
 			button.setActionCommand(label);
+			button.setPreferredSize(new Dimension(100,30));
 			button.addActionListener(listener);
 			button.setAlignmentX(SwingConstants.RIGHT);
 			button.setHorizontalAlignment(SwingConstants.LEFT);
 			group.add(button);
+			//container.add(button);
 			p.add(button);
 		}
 		panel.add(p);
