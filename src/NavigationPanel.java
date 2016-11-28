@@ -57,6 +57,7 @@ public class NavigationPanel extends JPanel{
 		//this.setPreferredSize(new Dimension(300, 1000));
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		initialize();
+		setInitialTextFieldNumbers();
 		calculator = getCalculator();
 	}
 	
@@ -111,7 +112,7 @@ public class NavigationPanel extends JPanel{
 		
 		//buttons
 		JPanel buttonPanel = new JPanel(new GridLayout(2,2));
-		JButton generateButton = new JButton("Re-Generate");
+		JButton generateButton = new JButton("Generate");
 		generateButton.addActionListener(new GenerateHandler());
 		JPanel generateContainer = new JPanel();
 		generateContainer.add(generateButton);
@@ -155,6 +156,10 @@ public class NavigationPanel extends JPanel{
 		//optionsPanel.add(new JLabel("Graph Metrics:"));
 		//optionsPanel.add(graphMetrics);
 		optionsPanel.add(geneticMetrics);
+		optionsPanel.add(new RadarChart(
+				new String[]{"STD", "Mean", "Median", "Min", "Max"}, 
+				new int[]{2,2,2,2,2}, 5));
+
 		//optionsPanel.add(initializeWeights());
 		//optionsPanel.add(geneticMetrics);
 		//optionsPanel.add(createColorPanel());
@@ -177,49 +182,6 @@ public class NavigationPanel extends JPanel{
 			wPanel.add(s);
 		}
 		return wPanel;
-	}
-	
-	
-	public void initializeColorSliders(){
-		sliderPanel.setLayout(new BoxLayout(sliderPanel, BoxLayout.PAGE_AXIS));
-		
-		/*JSlider redSlider = new JSlider(JSlider.HORIZONTAL,
-                TICK_MIN, TICK_MAX, TICK_INIT);
-		redSlider.setName("red");
-		redSlider.addChangeListener(new SliderHandler());
-		redSlider.setMajorTickSpacing(TICK_MAJOR);
-		redSlider.setPaintTicks(true);
-		redSlider.setOpaque(true);
-		redSlider.setForeground(Color.red);
-		redSlider.setPaintLabels(true);
-		
-		JSlider greenSlider = new JSlider(JSlider.HORIZONTAL,
-                TICK_MIN, TICK_MAX, TICK_INIT);
-		greenSlider.setName("green");
-		greenSlider.addChangeListener(new SliderHandler());
-		greenSlider.setMajorTickSpacing(TICK_MAJOR);
-		greenSlider.setPaintTicks(true);
-		greenSlider.setOpaque(true);
-		greenSlider.setForeground(new Color(0,155,0));
-		greenSlider.setPaintLabels(true);
-		
-		JSlider blueSlider = new JSlider(JSlider.HORIZONTAL,
-                TICK_MIN, TICK_MAX, TICK_INIT);
-		blueSlider.setName("blue");
-		blueSlider.addChangeListener(new SliderHandler());
-		blueSlider.setMajorTickSpacing(TICK_MAJOR);
-		blueSlider.setPaintTicks(true);
-		blueSlider.setOpaque(true);
-		blueSlider.setForeground(Color.blue);
-		blueSlider.setPaintLabels(true);
-
-		sliders.add(redSlider);
-		sliders.add(greenSlider);
-		sliders.add(blueSlider);
-		
-		sliderPanel.add(redSlider);
-		sliderPanel.add(greenSlider);
-		sliderPanel.add(blueSlider);*/
 	}
 	
 	public JPanel createColorPanel(){
@@ -260,6 +222,38 @@ public class NavigationPanel extends JPanel{
 		return false;
 	}
 	
+	public void setInitialTextFieldNumbers(){
+		GraphState state = new GraphState();
+		for(JTextField field : fields){
+			switch(field.getName()){
+				case " STD":
+					field.setText(Integer.toString((int) state.getSTD())); break;
+				case " mean":
+					field.setText(Integer.toString((int) state.getMean())); break;
+				case " median":
+					field.setText(Integer.toString((int) state.getMedian())); break;
+				case " min":
+					field.setText(Integer.toString((int) state.getMin())); break;
+				case " max":
+					field.setText(Integer.toString((int) state.getMax())); break;
+				case " people":
+					field.setText(Integer.toString(state.getPeople())); break; 
+				case " X spacing":
+					field.setText(Integer.toString((int) state.getXSpacing())); break;
+				case " # y ticks":
+					field.setText(Integer.toString((int) state.getYTicks())); break;
+				case " personal score" :
+					field.setText(Integer.toString((int) state.getPersonal())); break;
+				case " Generations" :
+					field.setText(Integer.toString(state.getGenerations())); break;
+				case " Threshold" :
+					field.setText(Integer.toString(state.getThreshold())); break;
+				case " Population" :
+					field.setText(Integer.toString(state.getPopulation())); break;
+			}
+		}
+	}
+	
 	/**
 	 * Returns the graph state of the program by reading the text fields in the program.
 	 * The user can input the name of a specific text field to get the parameter for that
@@ -276,9 +270,11 @@ public class NavigationPanel extends JPanel{
 		//Iterate through all the textfields and locate appropriate fields
 		for(JTextField field : fields){
 			String text = field.getText();
-			//skip over this one if the input isn't a number
-			if(!isNumeric(text))
-				continue;
+			//throw an exception if field not numeric
+			if(!isNumeric(text)){
+				throw new IllegalArgumentException("Textfield \"" + 
+						field.getName().substring(1) + "\" is not numeric");
+			}
 			if(targets != null && !contains(targets, field.getName())){
 				continue;
 			}
@@ -305,9 +301,9 @@ public class NavigationPanel extends JPanel{
 				case " Generations" :
 					state.setGenerations((int) num); break;
 				case " Threshold" :
-					state.setThreshold((int) num);
+					state.setThreshold((int) num); break;
 				case " Population" :
-					state.setPopulation((int) num);
+					state.setPopulation((int) num); break;
 			}		
 		}
 		state.setIntensity(absoluteIntensity);
@@ -463,6 +459,12 @@ public class NavigationPanel extends JPanel{
 			} catch (IllegalArgumentException o){
 				generateWarning("IllegalArgumentException", o.getMessage());
 			}
+			
+			//clear the graph metrics
+			for(JLabel label : outputs){
+				label.setText("");
+				label.setOpaque(false);
+			}
 		}
 	}
 	
@@ -510,9 +512,10 @@ public class NavigationPanel extends JPanel{
 		public void actionPerformed(ActionEvent e){
 			try{
 				GraphState state = getTextFieldParams(
-						new String[]{" Generations", " Threshold"});
+						new String[]{" Generations", " Threshold", " Population"});
 				calculator.setGenerations(state.getGenerations());
 				calculator.setThresold(state.getThreshold());
+				calculator.setPopulation(state.getPopulation());
 			} catch (IllegalArgumentException o){
 				generateWarning("IllegalArgumentException", o.getMessage());
 			}

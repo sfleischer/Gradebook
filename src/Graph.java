@@ -1,5 +1,5 @@
 import java.awt.*;
-
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.*;
@@ -16,7 +16,7 @@ import components.*;
  *
  */
 @SuppressWarnings("serial")
-public class Graph extends JPanel implements MouseListener{
+public class Graph extends JPanel{
 	
 	
 	public static final int STD = 4;
@@ -48,7 +48,7 @@ public class Graph extends JPanel implements MouseListener{
 		colorBar[1] = Color.blue;
 		
 		this.setPreferredSize(new Dimension(700,700));
-		this.addMouseListener(this);
+		this.addMouseListener(new MouseHandler());
 		this.setLayout(null);
 	}
 	
@@ -105,7 +105,7 @@ public class Graph extends JPanel implements MouseListener{
 		//draw x-axis label
 		String message = "Score";
 		textwidth = g2.getFontMetrics().stringWidth(message);
-		g2.drawString("Generations", (int) (xstart + xlength/2 - textwidth/2), 
+		g2.drawString(message, (int) (xstart + xlength/2 - textwidth/2), 
 				y + ORIGIN_Y/2);
 	}
 	
@@ -131,9 +131,12 @@ public class Graph extends JPanel implements MouseListener{
 		
 		//draw the tick and appropriate hashmarks
 		for(int i = 1; i <= space; i++){
-			g2.draw(new Line2D.Double(ORIGIN_X-tickheight, ystart-yunit*i, ORIGIN_X+tickheight, ystart-yunit*i));
-			double val = Math.round(maxf*i/space*Math.pow(10, numDigits))/Math.pow(10, numDigits);
-			g2.drawString(Double.toString(val), ORIGIN_X - 20 - 8*numDigits, (int) (ystart-yunit*i)+6);
+			g2.draw(new Line2D.Double(ORIGIN_X-tickheight, ystart-yunit*i, 
+					ORIGIN_X+tickheight, ystart-yunit*i));
+			double val = Math.round(
+					maxf*i/space*Math.pow(10, numDigits))/Math.pow(10, numDigits);
+			g2.drawString(Double.toString(val), 
+					ORIGIN_X - 20 - 8*numDigits, (int) (ystart-yunit*i)+6);
 		}
 		
 		//draw the y-axis label 
@@ -283,41 +286,24 @@ public class Graph extends JPanel implements MouseListener{
 		repaint();
 	}
 	
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		//getBar(e.getPoint());
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		Point pt = e.getPoint();
-		int index = getBarColorIndex(pt);
-		if(index == -1)
-			return;
-		if(gradient != null)
-			return;
-		Insets insets = this.getInsets();
-		gradient = new GradientPanel(colorBar, index, 200);
-		gradient.setBounds((int) pt.getX() + insets.right, (int) pt.getY() + insets.top,
-				GradientPanel.WIDTH, GradientPanel.HEIGHT);
-		gradient.addMoveListener(new MoveHandler());
-		this.add(gradient);
-		repaint();
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
+	private class MouseHandler extends MouseAdapter
+	{
+		@Override
+		public void mousePressed(MouseEvent e) {
+			Point pt = e.getPoint();
+			int index = getBarColorIndex(pt);
+			if(index == -1)
+				return;
+			if(gradient != null)
+				return;
+			Insets insets = getInsets();
+			gradient = new GradientPanel(colorBar, index, 200);
+			gradient.setBounds((int) pt.getX() + insets.right, (int) pt.getY() + insets.top,
+					GradientPanel.WIDTH, GradientPanel.HEIGHT);
+			gradient.addMoveListener(new MoveHandler());
+			add(gradient);
+			repaint();
+		}
 	}
 	
 	/**

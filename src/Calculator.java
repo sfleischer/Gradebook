@@ -326,6 +326,10 @@ public class Calculator {
 		this.threshold = threshold;
 	}
 	
+	public void setPopulation(int pop){
+		popSize = pop;
+	}
+	
 	public void setStdWeight(double weight){
 		std_weight = weight;
 	}
