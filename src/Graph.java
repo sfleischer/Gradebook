@@ -178,7 +178,7 @@ public class Graph extends JPanel{
 	public void drawHistogramBars(Graphics2D g2){
 		//prepare local variables
 		int numBins = grades.length;
-		double max = maxval(grades); //find the highest frequency bar
+		double max = Calculator.getMax(grades); //find the highest frequency bar
 		
 		//iterate through all the bins and draw each histogram bar
 		for(int i = 0; i < numBins; i++){
@@ -207,34 +207,8 @@ public class Graph extends JPanel{
 		
 		//print the sum of all frequencies on the bottom
 		g2.setColor(Color.black);
-		g2.drawString(Integer.toString(sum(grades)), (int) (xstart+xlength-20), ystart+50);
+		g2.drawString(Integer.toString(Calculator.sum(grades)), (int) (xstart+xlength-20), ystart+50);
 		
-	}
-	
-	/**
-	 * Finds the maximum value in an array
-	 * @param array The array to find the max value of
-	 * @return The maximum value
-	 */
-	private int maxval(int[] array){
-		int max = array[0];
-		for(int n : array){
-			max = Math.max(max, n);
-		}
-		return max;
-	}
-	
-	/**
-	 * Sums the elements of an array
-	 * @param array The array to be summed
-	 * @return The sum
-	 */
-	private int sum(int[] array){
-		int total = 0;
-		for(int n : array){
-			total += n;
-		}
-		return total;
 	}
 	
 	/**
@@ -256,7 +230,7 @@ public class Graph extends JPanel{
 	 * @return The index of the color bar array that corresponds to the appropriate bar
 	 */
 	private int getBarColorIndex(Point p){
-		double max = maxval(grades);
+		double max = Calculator.getMax(grades);
 		
 		double x = p.getX();
 		x = x - xstart;

@@ -64,6 +64,7 @@ public class Calculator {
 	public int[] findDistribution(){
 		int[][] population = generateFirstPopulation(min, max, people, popSize);
 		int i = 0;
+		System.out.println(threshold);
 		do {
 			int[][] fittest = findTheFittest(population);
 			int[][] culled = cull(fittest, population);
@@ -264,6 +265,14 @@ public class Calculator {
 		return sample[sample.length/2];
 	}
 	
+	public static int sum(int[] sample){
+		int sum = 0;
+		for(int n : sample){
+			sum += n;
+		}
+		return sum;
+	}
+	
 	/**
 	 * @param sample The sample that you wish to find the percentile in. sample does
 	 * not have to be sorted
@@ -316,6 +325,16 @@ public class Calculator {
 	public int getPeople(){ return people; }
 	
 	//IMPORTANT SETTERS
+	
+	public void update(double min, double max, double mean, double median, double std, int people){
+		this.min = min;
+		this.max = max;
+		this.mean = mean;
+		this.median = median;
+		this.std = std;
+		this.people = people;
+	}
+	
 	public void setGenerations(int g){
 		generations = g;
 		fitchart = new int[generations];

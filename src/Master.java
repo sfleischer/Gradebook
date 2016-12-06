@@ -12,5 +12,4 @@ public class Master extends JSplitPane{
 		this.add(new NavigationPanel(g), JSplitPane.RIGHT);
 		setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 	}
-
 }

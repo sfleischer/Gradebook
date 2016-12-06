@@ -373,7 +373,8 @@ public class NavigationPanel extends JPanel{
 			
 				//if the old calculator does not equal the new calculator, regenerate the whole thing
 				if(!calculator.equals(calc)){
-					calculator = calc;
+					calculator.update(state.getMin(), state.getMax(), state.getMean(),
+							state.getMedian(), state.getSTD(), state.getPeople());
 					distribution = calculator.findDistribution();
 					int[] dist = calculator.generateHistogram(distribution, state.getXSpacing());
 					double freq = state.getIntensity() ? 1.0 : 1.0 * Calculator.getMax(dist)/state.getPeople();
@@ -422,7 +423,7 @@ public class NavigationPanel extends JPanel{
 		public void actionPerformed(ActionEvent e){
 			try{
 				GraphState state = getTextFieldParams(null);
-				calculator = new Calculator(state.getMin(), state.getMax(), state.getMean(),
+				calculator.update(state.getMin(), state.getMax(), state.getMean(),
 						state.getMedian(), state.getSTD(), state.getPeople());
 				distribution = calculator.findDistribution();
 				int[] dist = calculator.generateHistogram(distribution, state.getXSpacing());

@@ -12,6 +12,8 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -23,6 +25,9 @@ public class RadarChart extends JPanel{
 	int max;
 	int radius;
 	
+	List<Bead> beads = new ArrayList<Bead>();
+	Bead selected = null; //the selected bead
+	
 	public RadarChart(String[] labels, int[] values, int max){
 		this.labels = labels;
 		this.values = values;
@@ -30,6 +35,11 @@ public class RadarChart extends JPanel{
 		vertices = labels.length;
 		this.setPreferredSize(new Dimension(300,300));
 		radius = 4;
+		
+		//initialize the beads
+		for(int i = 0; i < values.length; i++){
+			beads.add(new Bead(values[i], max));
+		}
 		
 		//set the mouse listeners
 		BeadListener bl = new BeadListener();
@@ -72,6 +82,7 @@ public class RadarChart extends JPanel{
 			double px = x + len * Math.cos(angle);
 			double py = y - len * Math.sin(angle);
 			g2.draw(new Line2D.Double(x, y, px, py));
+			beads.get(i).calibratePosition(new Point(x, y), new Point((int) px, (int) py));
 			
 			//draw hashmarks
 			for(int j = 1; j <= max; j++){
@@ -103,7 +114,9 @@ public class RadarChart extends JPanel{
 			double ratio = (1.0 * values[i]) / max; //find the ratio up the arm of the bead
 			double bx = x + ratio * len * Math.cos(angle); //base point of bead
 			double by = y - ratio * len * Math.sin(angle); //base point of bead
-			g2.fill(new Ellipse2D.Double(bx - radius, by - radius, radius*2, radius*2));
+			beads.get(i).updatePosition(new Point((int) bx, (int) by));
+			beads.get(i).draw(g2);
+			//g2.fill(new Ellipse2D.Double(bx - radius, by - radius, radius*2, radius*2));
 			
 			if(i == 0)
 				path.moveTo((float) bx, (float) by);
@@ -122,15 +135,21 @@ public class RadarChart extends JPanel{
 		
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			// TODO Auto-generated method stub
+			
 			
 		}
 	
 		
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
+			for(Bead b : beads){
+				if(b.isPointOnBead(e.getPoint())){
+					selected = b;
+					break;
+				}
+			}
+			px = e.getX();
+			py = e.getY();
 		}
 	
 		@Override

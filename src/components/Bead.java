@@ -9,51 +9,55 @@ public class Bead {
 
 	public static final int RADIUS = 4;
 	Color color;
-	//the position must be on the same line as the initial and final points
-	double px; //position x
-	double py; //position y
-	double ix; //initial scaling x (where the chart starts)
-	double iy; //initial y
-	double fx; //final x
-	double fy; //final y
+	
+	Point position;
+	Point start;
+	Point end;
 	
 	double value; //the value of the bead
+	double max; //the maximum value of the bead (would be 5)
 	
-	public Bead(double positionx, double positiony, double initialx, double initialy,
-			double finalx, double finaly, double value){
-		px = positionx;
-		py = positiony;
-		ix = initialx;
-		iy = initialy;
-		fx = finalx;
-		fy = finaly;
+	public Bead(double value, double max){
 		this.value = value;
-		color = Color.blue;
+		this.max = max;
+		position = new Point(0,0);
+		start = new Point(0,0);
+		end = new Point(0,0);
 	}
 	
 	public void draw(Graphics2D g2){
 		g2.setPaint(color);
-		g2.draw(new Ellipse2D.Double(px - RADIUS, py - RADIUS, RADIUS * 2, RADIUS * 2));
+		g2.fill(new Ellipse2D.Double(position.x - RADIUS, position.y - RADIUS, RADIUS * 2, RADIUS * 2));
 	}
 	
 	public boolean isPointOnBead(Point p){
-		return (p.x - px)*(p.x - px) + (p.y - py)*(p.y - py) < RADIUS*RADIUS;
+		return (p.x - position.x)*(p.x - position.x) + 
+				(p.y - position.y)*(p.y - position.y) < RADIUS*RADIUS;
+	}
+	
+	/**
+	 * Calibrate the bead so that it can only go along the start of the rail to the end
+	 * @param start The position of the start of the bead rail
+	 * @param end The poistion of the end of the bead rail
+	 */
+	public void calibratePosition(Point start, Point end){
+		this.start = start;
+		this.end = end;
 	}
 	
 	public void updatePosition(Point p){
-		if(p.x > fx || p.x < fx)
-			px = fx;
-		else if(p.x > ix || px < ix)
-			px = ix;
-		else
-			px = p.x;
+		/*if(p.x > end.x || p.x < end.x)
+			position.x = end.x;
+		else if(p.x > start.x || p.y < start.x)
+			position.x = start.x;
+		else*/
+			position.x = p.x;
 		
-		if(p.y > fy || p.y < fy)
-			py = fy;
-		else if(p.y > iy || py < iy)
-			py = iy;
-		else
-			py = p.y;
-		
+		/*if(p.y > end.y || p.y < end.y)
+			position.y = end.y;
+		else if(p.y > start.y || p.y < start.y)
+			position.y = start.y;
+		else*/
+			position.y = p.y;
 	}
 }
