@@ -25,6 +25,7 @@ public class NavigationPanel extends JPanel{
 	boolean absoluteIntensity = true;
 	
 	Graph graph;
+	RadarChart chart;
 	ArrayList<JTextField> fields = new ArrayList<JTextField>();
 	ArrayList<JSlider> sliders = new ArrayList<JSlider>();
 	ArrayList<JLabel> outputs = new ArrayList<JLabel>();
@@ -156,9 +157,10 @@ public class NavigationPanel extends JPanel{
 		//optionsPanel.add(new JLabel("Graph Metrics:"));
 		//optionsPanel.add(graphMetrics);
 		optionsPanel.add(geneticMetrics);
-		optionsPanel.add(new RadarChart(
+		chart = new RadarChart(
 				new String[]{"STD", "Mean", "Median", "Min", "Max"}, 
-				new int[]{2,2,2,2,2}, 5));
+				new double[]{3,2,3,0.5,0.5}, 5);
+		optionsPanel.add(chart);
 
 		//optionsPanel.add(initializeWeights());
 		//optionsPanel.add(geneticMetrics);
@@ -517,6 +519,13 @@ public class NavigationPanel extends JPanel{
 				calculator.setGenerations(state.getGenerations());
 				calculator.setThresold(state.getThreshold());
 				calculator.setPopulation(state.getPopulation());
+				double values[] = chart.getValues();
+				//order is "STD", "Mean", "Median", "Min", "Max"
+				calculator.setStdWeight(values[0]);
+				calculator.setMeanWeight(values[1]);
+				calculator.setMedianWeight(values[2]);
+				calculator.setMinWeight(values[3]);
+				calculator.setMaxWeight(values[4]);
 			} catch (IllegalArgumentException o){
 				generateWarning("IllegalArgumentException", o.getMessage());
 			}

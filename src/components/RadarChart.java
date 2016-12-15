@@ -1,10 +1,13 @@
 package components;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -13,38 +16,69 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 public class RadarChart extends JPanel{
 	int vertices;
 	String[] labels;
-	int[] values;
+	double[] values; //the values of the beads
+	double[] defaults; //the default values of the beads
 	int max;
 	int radius;
 	
-	List<Bead> beads = new ArrayList<Bead>();
+	List<Bead> beads = new LinkedList<Bead>();
 	Bead selected = null; //the selected bead
 	
-	public RadarChart(String[] labels, int[] values, int max){
+	public RadarChart(String[] labels, double[] values, int max){
 		this.labels = labels;
 		this.values = values;
 		this.max = max;
+		defaults = new double[values.length];
 		vertices = labels.length;
 		this.setPreferredSize(new Dimension(300,300));
+		this.setMinimumSize(new Dimension(300,300));
 		radius = 4;
 		
 		//initialize the beads
 		for(int i = 0; i < values.length; i++){
 			beads.add(new Bead(values[i], max));
+			defaults[i] = values[i];
 		}
 		
 		//set the mouse listeners
 		BeadListener bl = new BeadListener();
 		this.addMouseListener(bl);
 		this.addMouseMotionListener(bl);
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		JButton button = new JButton("restore defaults");
+		button.setPreferredSize(new Dimension(150,30));
+		//clicking the button will reset the values to default
+		button.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				for(int i = 0; i < values.length; i++){
+					beads.get(i).setValue(defaults[i]);
+					values[i] = defaults[i];
+				}
+				repaint();
+			}
+		});
+		button.setAlignmentX(Component.CENTER_ALIGNMENT);
+		JPanel cont = new JPanel();
+		cont.setPreferredSize(new Dimension(300,30));
+		cont.setBackground(new Color(255,255,255,0));
+		cont.setLayout(new BoxLayout(cont, BoxLayout.X_AXIS));
+		cont.add(Box.createHorizontalGlue());
+		cont.add(button);
+		cont.add(Box.createHorizontalGlue());
+		this.add(Box.createVerticalGlue());
+		this.add(cont);
 	}
 	
 	@Override
@@ -52,7 +86,6 @@ public class RadarChart extends JPanel{
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setColor(Color.white);
 		g2.fillRect(0, 0, getWidth(), getHeight());
-		System.out.println(getWidth());
 		drawRadarChart(g2);
 	}
 	
@@ -69,6 +102,15 @@ public class RadarChart extends JPanel{
 		drawBeads(g2, x, y, len);
 	}
 	
+	/**
+	 * Draws the axes of the radar chart
+	 * @param g2
+	 * @param x The x position of the center of the radar chart
+	 * @param y The y position of the center of the radar chart 
+	 * @param len The length of one arm
+	 * @param space The space between the arm and label text
+	 * @param hashwidth The width of the hashmarks
+	 */
 	public void drawAxes(Graphics2D g2, int x, int y, int len, int space, int hashwidth){
 		//prepare variables
 		int textwidth = 0;
@@ -111,7 +153,8 @@ public class RadarChart extends JPanel{
 		g2.setColor(Color.blue);
 		for(int i = 0; i < vertices; i++){
 			double angle = Math.PI/2 + 2*Math.PI / vertices * i;
-			double ratio = (1.0 * values[i]) / max; //find the ratio up the arm of the bead
+			values[i] = beads.get(i).getValue();
+			double ratio = (1.0 * beads.get(i).getValue()) / max; //find the ratio up the arm of the bead
 			double bx = x + ratio * len * Math.cos(angle); //base point of bead
 			double by = y - ratio * len * Math.sin(angle); //base point of bead
 			beads.get(i).updatePosition(new Point((int) bx, (int) by));
@@ -127,67 +170,35 @@ public class RadarChart extends JPanel{
 		path.closePath();
 		g2.fill(path);
 	}
+	
+	public double[] getValues(){
+		return values;
+	}
 
 	private class BeadListener extends MouseAdapter
 	{
-		int px; //the point where the first valid click was made
-		int py; //the point where the first valid click was made
 		
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			
-			
+			if(selected == null){
+				return;
+			}
+			selected.updatePosition(e.getPoint());
+			repaint();
 		}
 	
-		
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			for(Bead b : beads){
-				if(b.isPointOnBead(e.getPoint())){
-					selected = b;
-					break;
-				}
-			}
-			px = e.getX();
-			py = e.getY();
-		}
 	
 		@Override
 		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-	
-
-	}
-	
-	public class Vector{
-		public final double x;
-		public final double y;
-		
-		public Vector(double x, double y){
-			this.x = x;
-			this.y = y;
-		}
-		
-		public double dot(Vector v){
-			return x * v.x + y * v.y;
-		}
-		
-		public double getMagnitude(){
-			return Math.sqrt(x*x + y*y);
-		}
-		
-		public Vector getNormal(){
-			return new Vector(-y, x);
-		}
-		
-		public double findDistanceToPoint(Point p){
-			Vector n = this.getNormal();
-			return this.dot(n)/n.getMagnitude();
+			for(Bead b : beads){
+				if(b.isPointOnBead(e.getPoint())){
+					selected = b;
+					return;
+				}
+			}
+			selected = null;
 		}
 	}
-
 	
 
 }

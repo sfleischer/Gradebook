@@ -32,7 +32,7 @@ public class Bead {
 	
 	public boolean isPointOnBead(Point p){
 		return (p.x - position.x)*(p.x - position.x) + 
-				(p.y - position.y)*(p.y - position.y) < RADIUS*RADIUS;
+				(p.y - position.y)*(p.y - position.y) <= RADIUS*RADIUS+2;
 	}
 	
 	/**
@@ -46,18 +46,40 @@ public class Bead {
 	}
 	
 	public void updatePosition(Point p){
-		/*if(p.x > end.x || p.x < end.x)
-			position.x = end.x;
-		else if(p.x > start.x || p.y < start.x)
+		int dx = p.x - start.x;
+		int dy = p.y - start.y;
+		double distance = Math.sqrt(dx*dx + dy*dy);
+		int fx = end.x - start.x;
+		int fy = end.y - start.y;
+		double len = Math.sqrt(fx*fx + fy*fy);
+		double cos = (dx * fx + dy * fy)/(distance * len);
+		double value = distance * cos;
+		if(value < 0){
 			position.x = start.x;
-		else*/
-			position.x = p.x;
-		
-		/*if(p.y > end.y || p.y < end.y)
-			position.y = end.y;
-		else if(p.y > start.y || p.y < start.y)
 			position.y = start.y;
-		else*/
-			position.y = p.y;
+			this.value = 0;
+		} else if(value > len){
+			position.x = end.x;
+			position.y = end.y;
+			this.value = max;
+		} else {
+			position.x = (int) (value * fx / len) + start.x;
+			position.y = (int) (value * fy / len) + start.y;
+			this.value = max * value / len;
+		}
+	}
+	
+	public double getValue(){
+		return value;
+	}
+	
+	public void setValue(double v){
+		if( v < 0){
+			value = 0;
+		} else if(v > max){
+			value = max;
+		} else {
+			value = v;
+		}
 	}
 }

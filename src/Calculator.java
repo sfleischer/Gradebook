@@ -353,4 +353,20 @@ public class Calculator {
 		std_weight = weight;
 	}
 	
+	public void setMeanWeight(double weight){
+		mean_weight = weight;
+	}
+	
+	public void setMedianWeight(double weight){
+		median_weight = weight;
+	}
+	
+	public void setMinWeight(double weight){
+		min_weight = weight;
+	}
+	
+	public void setMaxWeight(double weight){
+		max_weight = weight; 
+	}
+	
 }
