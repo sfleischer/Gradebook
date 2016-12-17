@@ -64,7 +64,6 @@ public class Calculator {
 	public int[] findDistribution(){
 		int[][] population = generateFirstPopulation(min, max, people, popSize);
 		int i = 0;
-		System.out.println(threshold);
 		do {
 			int[][] fittest = findTheFittest(population);
 			int[][] culled = cull(fittest, population);
@@ -176,7 +175,7 @@ public class Calculator {
 	public int getFitness(int[] array){
 		double fitness = 1000;
 		Sorting.sort(array);
-		fitness -= std_weight * Math.pow(std - standardDev(array), 2);
+		fitness -= 2 * std_weight * Math.pow(std - standardDev(array), 2);
 		fitness -= mean_weight * Math.pow(mean - getMean(array), 2);
 		fitness -= median_weight * Math.pow(median - array[array.length/2], 2);
 		fitness -= min_weight * Math.pow(min - array[0], 2);

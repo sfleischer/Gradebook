@@ -302,7 +302,6 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 			if(x > 0 && x < IMAGE_SIZE && y < HEIGHT && y > BAR_HEIGHT){
 				selected = new Point(x,y);
 				colors[index] = getColor(selected);
-				System.out.println(colors[index]);
 				updatePanel();
 			}
 		} else{
@@ -330,7 +329,7 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 			int i = (int) (value / 100);
 			double weight2 = (value - i * 100) / 100;
 			double weight1 = 1 - weight2;
-			System.out.println("weight1 " + weight1);
+			//System.out.println("weight1 " + weight1);
 			int red = (int) (array[i].getRed()*weight1 
 					+ array[i+1].getRed()*weight2);
 			int green = (int) (array[i].getGreen()*weight1 
