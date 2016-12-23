@@ -15,6 +15,7 @@ public class Calculator {
 	private int generations = 300;
 	private int threshold = 1000; //threshold will end the algorithm if the top graph's fitness passes this
 	private int popSize = 50; //the size of each population
+	private double mutation = 10;
 	
 	//weights. the sum of all weights should equal less than 10
 	private double min_weight = 0.5;
@@ -70,6 +71,7 @@ public class Calculator {
 			population = createNextGeneration(culled);
 			fitchart[i] = fittest[fittest.length-1][0];
 			weakchart[i] = fittest[0][0];
+			adjustMutationRate(fitchart[i]);
 		} while(i < generations-1 && fitchart[i++] < threshold);
 		int[][] fittest = findTheFittest(population);
 		return population[fittest[fittest.length-1][1]];
@@ -121,7 +123,19 @@ public class Calculator {
 			mutate(children[j]);
 			mutate(children[j+1]);
 		}
+		children[0] = parents[parents.length - 1];
 		return children;
+	}
+	
+	/**
+	 * Changes the mutation rate based on the level of fitness. The mutation
+	 * rate lowers as fitness reaches the ideal fitness (1000) and is high
+	 * when the fitness rating is very low. 
+	 * @param fitness The fitness of the current generation
+	 */
+	public void adjustMutationRate(int fitness){
+		double cap = fitness < 990 ? 15 : 19;
+		mutation = cap / (fitness - 1000.1) + 20;
 	}
 	
 	/**
@@ -148,13 +162,13 @@ public class Calculator {
 	public void mutate(int[] array){
 		for(int i = 0; i < array.length; i++){
 			int fate = (int) (100*Math.random());
-			if(fate < 20){
+			if(fate < mutation*2){
 				array[i] = array[i] + (int) (2*Math.random() - 1);
-			} else if(fate < 35){
+			} else if(fate < mutation * 3.5){
 				array[i] = array[i] + (int) (4*Math.random() - 2);
-			} else if(fate < 45){
+			} else if(fate < mutation * 4.5){
 				array[i] = array[i] + (int) (6*Math.random() - 3);
-			} else if(fate < 53){
+			} else if(fate < mutation * 5.0){
 				array[i] = array[i] + (int) (8*Math.random() - 4);
 			}
 			if(array[i] < min)

@@ -127,14 +127,18 @@ public class FormatComponent {
 			p.setLayout(new FlowLayout());
 		else
 			p.setLayout(new GridLayout(row, column));
-		for(String label : list){
-			JRadioButton button = new JRadioButton(label);
+		for(int i = 0; i < list.length; i++){
+			JRadioButton button = new JRadioButton(list[i]);
 			//JPanel container = new JPanel();
-			button.setActionCommand(label);
+			button.setActionCommand(list[i]);
 			button.setPreferredSize(new Dimension(100,30));
 			button.addActionListener(listener);
 			button.setAlignmentX(SwingConstants.RIGHT);
 			button.setHorizontalAlignment(SwingConstants.LEFT);
+			//if its the first button then select it
+			if(i == 0)
+				button.setSelected(true);
+			
 			group.add(button);
 			//container.add(button);
 			p.add(button);
