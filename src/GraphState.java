@@ -1,5 +1,11 @@
 
-
+/**
+ * This class maintains the state of the program by keeping track of all the fields
+ * that the user has entered. This class will also throw IllegalArgumentExceptions
+ * if the field is too large or small for its scope
+ * @author sfleischer
+ *
+ */
 public class GraphState {
 	private double STD;
 	private double mean;

@@ -6,6 +6,12 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  * This class takes an image as an argument and creates a slider over it.
@@ -13,15 +19,21 @@ import java.awt.image.BufferedImage;
  * @version created 11/17/16
  */
 @SuppressWarnings("serial")
-public class ImageSlider extends ColorSlider{
+public class ImageSlider extends JPanel implements Slidable{
 	
-	BufferedImage image;
-	int width;
-	int height;
+	List<ChangeListener> list = new ArrayList<ChangeListener>();
+	private double value;
+	private double max;
+	
+	private BufferedImage image;
+	private int width;
+	private int height;
 	//double value;
 	
 	public ImageSlider(BufferedImage im, double val, double max) {
-		super(null, "", max);
+		this.max = max;
+		this.addMouseListener(this);
+		this.addMouseMotionListener(this);
 		image = im;
 		value = val;
 	}
@@ -32,6 +44,8 @@ public class ImageSlider extends ColorSlider{
 		g2.drawImage(image, null, 0, 0);
 		drawPointer(g2);
 	}
+	
+	
 	
 	private void drawPointer(Graphics2D g2){
 		int y = (int) ((value / max) * getHeight());
@@ -49,7 +63,6 @@ public class ImageSlider extends ColorSlider{
 	}
 	
 	
-	@Override
 	public void handleChange(MouseEvent e){
 		double py = e.getY();
 		if(py > getHeight() || py < 0)
@@ -59,6 +72,63 @@ public class ImageSlider extends ColorSlider{
 		//System.out.println(value);
 		dispatchEvent();
 		repaint();
+	}
+	
+	public void dispatchEvent(){
+		for(ChangeListener cl : list){
+			cl.stateChanged(new ChangeEvent(this));
+		}
+	}
+	
+	public double getValue(){
+		return value;
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		handleChange(e);
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		handleChange(e);
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		handleChange(e);
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		handleChange(e);
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addChangeListener(ChangeListener l){
+		list.add(l);
 	}
 	
 	

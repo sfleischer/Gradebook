@@ -39,15 +39,11 @@ public class FormatComponent {
 		
 		for(String label : list){
 			JLabel l = new JLabel(label + ":");
-			//l.setForeground(foreground);
-			//l.setBackground(background);
 			l.setHorizontalAlignment(SwingConstants.LEFT);
 			l.setOpaque(true);
 			
 			JTextField field = new JTextField();
 			field.setPreferredSize(new Dimension(150,20));
-			//field.setMinimumSize(new Dimension(150,20));
-			//field.setBackground(foreground);
 			field.setName(label);
 			field.setAlignmentX(Component.CENTER_ALIGNMENT);
 			field.setHorizontalAlignment(JTextField.CENTER);
@@ -55,24 +51,18 @@ public class FormatComponent {
 			fields.add(field);
 			
 			JPanel f = new JPanel(new BorderLayout());
-			//f.setMinimumSize(new Dimension(150,35));
 			f.setPreferredSize(new Dimension(150,35));
 			f.setMaximumSize(new Dimension(150,35));
 			f.add(field);
 			
 			JPanel fieldContainer = new JPanel();
 			fieldContainer.setLayout(new BoxLayout(fieldContainer, BoxLayout.Y_AXIS));
-			//fieldContainer.add(Box.createVerticalStrut(50));
 			fieldContainer.setPreferredSize(new Dimension(150,35));
-			//fieldContainer.setMinimumSize(new Dimension(150,35));
-			//fieldContainer.setMaximumSize(new Dimension(150,35));
 			fieldContainer.add(Box.createVerticalGlue());
 			fieldContainer.add(f);
-			//fieldContainer.setBackground(background);
 			fieldContainer.add(Box.createVerticalGlue());
 			
 			JPanel p = new JPanel(new GridLayout(1,2));
-			//p.setBackground(new Color(255,240,240));
 			p.add(l);
 			p.add(fieldContainer);
 			
@@ -85,6 +75,7 @@ public class FormatComponent {
 	 * @param panel The JPanel for the labels to be inserted into
 	 * @param outputs The list of labels added
 	 * @param list The list of labels to be added
+	 * @param title The label to add to the top of the JLabels that titles the panel. 
 	 */
 	public static void addLabels(JPanel panel, ArrayList<JLabel> outputs, 
 			String[] list, String title){
@@ -116,8 +107,17 @@ public class FormatComponent {
 			panel.add(p);
 		}
 	}
-	
-	public static void addRadioButtons(JPanel panel, ActionListener listener, String[] list){
+	/**
+	 * Formats the Radio Buttons and puts it into a panel. The first String passed in
+	 * will always be selected first. If there are fewer than two strings in the list
+	 * then the button layout would be a FlowLayout. Otherwise it would be a GridLayout
+	 * with column size 2.
+	 * @param panel The panel to add the RadioButtons to
+	 * @param listener The listener that will activate when a button is pressed
+	 * @param list The list of strings to title the buttons with.
+	 */
+	public static void addRadioButtons(JPanel panel, 
+			ActionListener listener, String[] list){
 		ButtonGroup group = new ButtonGroup();
 		
 		int row = list.length/2;
@@ -129,7 +129,6 @@ public class FormatComponent {
 			p.setLayout(new GridLayout(row, column));
 		for(int i = 0; i < list.length; i++){
 			JRadioButton button = new JRadioButton(list[i]);
-			//JPanel container = new JPanel();
 			button.setActionCommand(list[i]);
 			button.setPreferredSize(new Dimension(100,30));
 			button.addActionListener(listener);
@@ -140,7 +139,6 @@ public class FormatComponent {
 				button.setSelected(true);
 			
 			group.add(button);
-			//container.add(button);
 			p.add(button);
 		}
 		panel.add(p);

@@ -122,6 +122,8 @@ public class Calculator {
 			children[j+1] = reproduce(parent2, parent1);
 			mutate(children[j]);
 			mutate(children[j+1]);
+			//injectStandardDeviation(children[j]);
+			//injectStandardDeviation(children[j+1]);
 		}
 		children[0] = parents[parents.length - 1];
 		return children;
@@ -166,10 +168,12 @@ public class Calculator {
 				array[i] = array[i] + (int) (2*Math.random() - 1);
 			} else if(fate < mutation * 3.5){
 				array[i] = array[i] + (int) (4*Math.random() - 2);
-			} else if(fate < mutation * 4.5){
+			} else if(fate < mutation * 4.0){
 				array[i] = array[i] + (int) (6*Math.random() - 3);
-			} else if(fate < mutation * 5.0){
+			} else if(fate < mutation * 4.5){
 				array[i] = array[i] + (int) (8*Math.random() - 4);
+			} else if(fate < mutation * 5.0){
+				array[i] = array[i] + (int) (10*Math.random() - 5);
 			}
 			if(array[i] < min)
 				array[i] = (int) min;
@@ -178,6 +182,7 @@ public class Calculator {
 			
 		}
 	}
+	
 	
 	/**
 	 * This is the fitness function of the genetic algorithm
@@ -197,12 +202,6 @@ public class Calculator {
 		return (int) fitness;
 	}
 	
-	/*
-	public int getDiversity(int[] array){
-		double diversity = 1000;
-		Sorting.sort(array);
-	}*/
-	
 	/**
 	 * Returns the fitchart of the calculator. A fitchart plots the fitness of the most
 	 * fit organism for each generation. Hopefully the fitness trend increases over the 
@@ -217,8 +216,13 @@ public class Calculator {
 		return weakchart;
 	}
 	
+	/**
+	 * Overriding equals method
+	 */
 	@Override
 	public boolean equals(Object o){
+		if(o == null)
+			return false;
 		if(!this.getClass().equals(o.getClass()))
 			return false;
 		Calculator calc = (Calculator) o;
@@ -297,6 +301,15 @@ public class Calculator {
 		return search(sample, 0, sample.length-1, num);
 	}
 	
+	/**
+	 * Precondition: The sample is already sorted. This algorithm uses
+	 * sorted list invariants to make calculations faster.
+	 * @param sample The sample to search the index of
+	 * @param min The lower bound for the search (should be 0 to start)
+	 * @param max The upper bound for the search (should be sample.length - 1)
+	 * @param num The number to search the index of
+	 * @return The index of where the number appears in the sample.
+	 */
 	private static int search(int[] sample, int min, int max, int num){
 		if(min >= max || max >= sample.length)
 			return (int) (100.0*max/sample.length);
@@ -308,26 +321,7 @@ public class Calculator {
 			return search(sample, mid+1, max, num);
 		else 
 			return search(sample, min, mid, num);
-	}
-	
-	public static int getPlausiblility(int[] sample){
-		int total = 100;
-		double std = Calculator.standardDev(sample);
-		double plimit = 2.8;
-		Sorting.sort(sample);
-		
-		double median = sample[sample.length/2];
-		int min = sample[0];
-		double z = median - min;
-		z = Math.abs(z/std - plimit);
-		total = total - (int) (20*z);
-		int max = sample[sample.length-1];
-		z = max - median;
-		z = Math.abs(z/std - plimit);
-		total = total - (int) (20*z);
-		return total;
-	}
-	
+	}	
 	
 	//ALL TRIVIAL GETTERS
 	public double getMin(){ return min; }

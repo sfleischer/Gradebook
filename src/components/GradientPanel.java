@@ -75,7 +75,12 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 		
 		CloseButton cb = new CloseButton();
 		cb.setBounds(WIDTH - BAR_HEIGHT, 0, BAR_HEIGHT, BAR_HEIGHT);
-		cb.addActionListener(new CloseHandler());
+		cb.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				closePanel();
+			}	
+		});
 		this.add(cb);
 	}
 	
@@ -324,7 +329,7 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			ColorSlider s = (ColorSlider) e.getSource();
+			ImageSlider s = (ImageSlider) e.getSource();
 			double value = s.getValue();
 			int i = (int) (value / 100);
 			double weight2 = (value - i * 100) / 100;
@@ -342,12 +347,5 @@ public class GradientPanel extends JPanel implements MouseListener, MouseMotionL
 			repaint();
 		}
 	}
-	
-	private class CloseHandler implements ActionListener{
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			closePanel();
-		}	
-	}
 }

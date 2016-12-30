@@ -2,7 +2,6 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import components.ColorRadioButtonGroup;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -39,7 +38,6 @@ public class NavigationPanel extends JPanel{
 
 	
 	JPanel sliderPanel = new JPanel();
-	ColorRadioButtonGroup crbg = new ColorRadioButtonGroup();
 	
 	
 	public NavigationPanel(Graph g){
@@ -175,18 +173,7 @@ public class NavigationPanel extends JPanel{
 		this.add(tabbedPane);
 	}
 	
-	public JPanel initializeWeights(){
-		String[] weights = {" STD", " mean", " median", " min", " max"};
-		JPanel wPanel = new JPanel();
-		wPanel.setLayout(new BoxLayout(wPanel, BoxLayout.PAGE_AXIS));
-		for(String title : weights){
-			ColorSlider s = new ColorSlider(Color.black, title, 100);
-			wPanel.add(s);
-		}
-		return wPanel;
-	}
-	
-	public JPanel createColorPanel(){
+	/*public JPanel createColorPanel(){
 		JPanel cPanel = new JPanel(new GridLayout(2,2));
 		
 		JLabel label1 = new JLabel("bar color 1:");
@@ -207,7 +194,7 @@ public class NavigationPanel extends JPanel{
 		cPanel.add(button2);
 		
 		return cPanel;
-	}
+	}*/
 	
 
 	
@@ -469,28 +456,6 @@ public class NavigationPanel extends JPanel{
 				label.setOpaque(false);
 			}
 		}
-	}
-	
-	private class ColorHandler implements ActionListener
-	{
-		public void actionPerformed(ActionEvent e){
-			crbg.selectButton((ColorButton) e.getSource());
-			Color c = crbg.getSelectedColor();
-			for(JSlider s : sliders){
-				switch(s.getName()) {
-				case "red" :
-					s.setValue(c.getRed());
-					break;
-				case "green" :
-					s.setValue(c.getGreen());
-					break;
-				case "blue" :
-					s.setValue(c.getBlue());
-					break;
-				} 
-			}
-		}
-		
 	}
 	
 	

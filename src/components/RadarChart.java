@@ -90,6 +90,11 @@ public class RadarChart extends JPanel{
 		drawRadarChart(g2);
 	}
 	
+	/**
+	 * Draws the radar chart by preparing values to pass to drawAxes and
+	 * drawBeads mehods
+	 * @param g2
+	 */
 	public void drawRadarChart(Graphics2D g2){
 		int textheight = g2.getFontMetrics().getHeight(); //height of the text
 		int textwidth = g2.getFontMetrics().stringWidth("rando"); //text width
