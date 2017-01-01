@@ -2,13 +2,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
+@SuppressWarnings("serial")
 public class Instructions extends JPanel implements ActionListener{
 	String message = "Welcome to Gradebook! Here you can find what "
 			+ "percentile you fall under on any of your exams. "

@@ -1,7 +1,7 @@
 
 public class Calculator {
 
-	//public static final int 
+	//graph statistics
 	private double min;
 	private double max;
 	private double mean;
@@ -11,7 +11,19 @@ public class Calculator {
 	private int[] fitchart;
 	private int[] weakchart;
 	
-	public static final int GENERATIONS = 300;
+	//genetics specifications
+	private int generations = 300;
+	private int threshold = 1000; //threshold will end the algorithm if the top graph's fitness passes this
+	private int popSize = 50; //the size of each population
+	private double mutation = 10;
+	
+	//weights. the sum of all weights should equal less than 10
+	private double min_weight = 0.5;
+	private double max_weight = 0.5;
+	private double mean_weight = 2;
+	private double median_weight = 3;
+	private double std_weight = 3;
+	
 	
 	public Calculator(double min, double max, double mean, double median, double std, int people){
 		this.min = min;
@@ -20,8 +32,8 @@ public class Calculator {
 		this.median = median;
 		this.std = std;
 		this.people = people;
-		fitchart = new int[GENERATIONS];
-		weakchart = new int[GENERATIONS];
+		fitchart = new int[generations];
+		weakchart = new int[generations];
 	}
 	
 	public int[] generateHistogram(double xspacing){
@@ -51,14 +63,16 @@ public class Calculator {
 	}
 	
 	public int[] findDistribution(){
-		int[][] population = generateFirstPopulation(min, max, people, 50);
-		for(int i = 0; i < GENERATIONS; i++){
+		int[][] population = generateFirstPopulation(min, max, people, popSize);
+		int i = 0;
+		do {
 			int[][] fittest = findTheFittest(population);
 			int[][] culled = cull(fittest, population);
 			population = createNextGeneration(culled);
 			fitchart[i] = fittest[fittest.length-1][0];
 			weakchart[i] = fittest[0][0];
-		}
+			adjustMutationRate(fitchart[i]);
+		} while(i < generations-1 && fitchart[i++] < threshold);
 		int[][] fittest = findTheFittest(population);
 		return population[fittest[fittest.length-1][1]];
 	}
@@ -85,6 +99,10 @@ public class Calculator {
 		return fitness;
 	}
 	
+	/*public int[][] findTheMostDiverse(int[][] population){
+		
+	}*/
+	
 	public int[][] cull(int[][] fitness, int[][] population){
 		int[][] culled = new int[fitness.length/2][population[0].length];
 		for(int i = 0; i < culled.length; i++){
@@ -104,8 +122,22 @@ public class Calculator {
 			children[j+1] = reproduce(parent2, parent1);
 			mutate(children[j]);
 			mutate(children[j+1]);
+			//injectStandardDeviation(children[j]);
+			//injectStandardDeviation(children[j+1]);
 		}
+		children[0] = parents[parents.length - 1];
 		return children;
+	}
+	
+	/**
+	 * Changes the mutation rate based on the level of fitness. The mutation
+	 * rate lowers as fitness reaches the ideal fitness (1000) and is high
+	 * when the fitness rating is very low. 
+	 * @param fitness The fitness of the current generation
+	 */
+	public void adjustMutationRate(int fitness){
+		double cap = fitness < 990 ? 15 : 19;
+		mutation = cap / (fitness - 1000.1) + 20;
 	}
 	
 	/**
@@ -132,14 +164,16 @@ public class Calculator {
 	public void mutate(int[] array){
 		for(int i = 0; i < array.length; i++){
 			int fate = (int) (100*Math.random());
-			if(fate < 20){
+			if(fate < mutation*2){
 				array[i] = array[i] + (int) (2*Math.random() - 1);
-			} else if(fate < 35){
+			} else if(fate < mutation * 3.5){
 				array[i] = array[i] + (int) (4*Math.random() - 2);
-			} else if(fate < 45){
+			} else if(fate < mutation * 4.0){
 				array[i] = array[i] + (int) (6*Math.random() - 3);
-			} else if(fate < 53){
+			} else if(fate < mutation * 4.5){
 				array[i] = array[i] + (int) (8*Math.random() - 4);
+			} else if(fate < mutation * 5.0){
+				array[i] = array[i] + (int) (10*Math.random() - 5);
 			}
 			if(array[i] < min)
 				array[i] = (int) min;
@@ -148,6 +182,7 @@ public class Calculator {
 			
 		}
 	}
+	
 	
 	/**
 	 * This is the fitness function of the genetic algorithm
@@ -159,15 +194,11 @@ public class Calculator {
 	public int getFitness(int[] array){
 		double fitness = 1000;
 		Sorting.sort(array);
-		fitness -= 3*Math.pow(std - standardDev(array), 2);
-		fitness -= 2*Math.pow(mean - getMean(array), 2);
-		fitness -= 3*Math.pow(median - array[array.length/2], 2);
-		
-		if(min != -1)
-			fitness -= 0.5*Math.pow(min - array[0], 2);
-		
-		if(max != -1)
-			fitness -= 0.5*Math.pow(max - array[array.length-1], 2);
+		fitness -= 2 * std_weight * Math.pow(std - standardDev(array), 2);
+		fitness -= mean_weight * Math.pow(mean - getMean(array), 2);
+		fitness -= median_weight * Math.pow(median - array[array.length/2], 2);
+		fitness -= min_weight * Math.pow(min - array[0], 2);
+		fitness -= max_weight * Math.pow(max - array[array.length-1], 2);
 		return (int) fitness;
 	}
 	
@@ -185,8 +216,15 @@ public class Calculator {
 		return weakchart;
 	}
 	
+	/**
+	 * Overriding equals method
+	 */
 	@Override
 	public boolean equals(Object o){
+		if(o == null)
+			return false;
+		if(!this.getClass().equals(o.getClass()))
+			return false;
 		Calculator calc = (Calculator) o;
 		return 	min == calc.getMin() &&
 				max == calc.getMax() &&
@@ -244,6 +282,14 @@ public class Calculator {
 		return sample[sample.length/2];
 	}
 	
+	public static int sum(int[] sample){
+		int sum = 0;
+		for(int n : sample){
+			sum += n;
+		}
+		return sum;
+	}
+	
 	/**
 	 * @param sample The sample that you wish to find the percentile in. sample does
 	 * not have to be sorted
@@ -255,6 +301,15 @@ public class Calculator {
 		return search(sample, 0, sample.length-1, num);
 	}
 	
+	/**
+	 * Precondition: The sample is already sorted. This algorithm uses
+	 * sorted list invariants to make calculations faster.
+	 * @param sample The sample to search the index of
+	 * @param min The lower bound for the search (should be 0 to start)
+	 * @param max The upper bound for the search (should be sample.length - 1)
+	 * @param num The number to search the index of
+	 * @return The index of where the number appears in the sample.
+	 */
 	private static int search(int[] sample, int min, int max, int num){
 		if(min >= max || max >= sample.length)
 			return (int) (100.0*max/sample.length);
@@ -266,26 +321,7 @@ public class Calculator {
 			return search(sample, mid+1, max, num);
 		else 
 			return search(sample, min, mid, num);
-	}
-	
-	public static int getPlausiblility(int[] sample){
-		int total = 100;
-		double std = Calculator.standardDev(sample);
-		double plimit = 2.8;
-		Sorting.sort(sample);
-		
-		double median = sample[sample.length/2];
-		int min = sample[0];
-		double z = median - min;
-		z = Math.abs(z/std - plimit);
-		total = total - (int) (20*z);
-		int max = sample[sample.length-1];
-		z = max - median;
-		z = Math.abs(z/std - plimit);
-		total = total - (int) (20*z);
-		return total;
-	}
-	
+	}	
 	
 	//ALL TRIVIAL GETTERS
 	public double getMin(){ return min; }
@@ -294,5 +330,54 @@ public class Calculator {
 	public double getMean(){ return mean; }
 	public double getMedian(){ return median; }
 	public int getPeople(){ return people; }
+	
+	//IMPORTANT SETTERS
+	
+	public void update(double min, double max, double mean, double median, double std, int people){
+		this.min = min;
+		this.max = max;
+		this.mean = mean;
+		this.median = median;
+		this.std = std;
+		this.people = people;
+	}
+	
+	public void setGenerations(int g){
+		generations = g;
+		fitchart = new int[generations];
+		weakchart = new int[generations];
+	}
+	
+	public void setThresold(int threshold){
+		this.threshold = threshold;
+	}
+	
+	public void setPopulation(int pop){
+		popSize = pop;
+	}
+	
+	public void setMutation(double mut){
+		mutation = mut;
+	}
+	
+	public void setStdWeight(double weight){
+		std_weight = weight;
+	}
+	
+	public void setMeanWeight(double weight){
+		mean_weight = weight;
+	}
+	
+	public void setMedianWeight(double weight){
+		median_weight = weight;
+	}
+	
+	public void setMinWeight(double weight){
+		min_weight = weight;
+	}
+	
+	public void setMaxWeight(double weight){
+		max_weight = weight; 
+	}
 	
 }
