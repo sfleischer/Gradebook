@@ -356,6 +356,10 @@ public class Calculator {
 		popSize = pop;
 	}
 	
+	public void setMutation(double mut){
+		mutation = mut;
+	}
+	
 	public void setStdWeight(double weight){
 		std_weight = weight;
 	}

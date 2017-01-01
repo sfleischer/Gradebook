@@ -105,7 +105,13 @@ public class GraphState {
 		generations = g; 
 	}
 	
-	public void setMutation(double m)   { mutation = m; }
+	public void setMutation(double m)   { 
+		if(m < 0 || m > 20){
+			throw new IllegalArgumentException("Mutation must be between 0 and 20");
+		}
+		mutation = m; 
+	}
+	
 	public void setThreshold(int t){
 		if(t < 0 || t > 1000){
 			throw new IllegalArgumentException("Threshold must be between 0 and 1000");

@@ -1,9 +1,4 @@
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.awt.event.*;
@@ -42,13 +37,14 @@ public class NavigationPanel extends JPanel{
 	
 	public NavigationPanel(Graph g){
 		super();
-		labels = new String[]{" STD", " mean", " median", " min", " max", " people", " personal score"};
+		labels = new String[]{" STD", " mean", " median", " min", 
+				" max", " people", " personal score"};
 		metrics = new String[]{" X spacing", " # y ticks"};
 		results = new String[]{" Graph STD", " Graph mean", " Graph median",
 				" Percentile"};
 		genetics = new String[]{" Generations", " Threshold", " Population"};
-		fitlabels = new String[]{"fitness rank", "diversity rank", 
-				"fitdiverse rank","tailed fitness rank"};
+		fitlabels = new String[]{"auto-fit", "auto-diverse", 
+				"manual","slow-fit"};
 		intensities = new String[]{"Absolute", "Relative"};
 		graph = g;
 		//this.setMaximumSize(new Dimension(400,1000));
@@ -90,7 +86,7 @@ public class NavigationPanel extends JPanel{
 		//JLabel label = new JLabel("Intensity:");
 		//radioLabel.add(label);
 		FormatComponent.addRadioButtons(
-				graphMetrics, new IntensityHandler(), intensities);
+				graphMetrics, new IntensityHandler(), intensities, null);
 		//graphMetrics.add(radioLabel);
 		
 		//the stats of the graph generated and the percentile of the input score
@@ -106,7 +102,8 @@ public class NavigationPanel extends JPanel{
 				geneticMetrics, fields, genetics, "Genetics:");
 		//JPanel radioWrapper = new JPanel();
 		//radioWrapper.setMaximumSize(new Dimension(this.getSize()));
-		FormatComponent.addRadioButtons(geneticMetrics, new RadioHandler(), fitlabels);
+		//FormatComponent.addRadioButtons(geneticMetrics, 
+		//		new RadioHandler(), fitlabels, "Mutation style:");
 		//geneticMetrics.add(radioWrapper);
 		
 		//buttons
@@ -135,12 +132,6 @@ public class NavigationPanel extends JPanel{
 		clearContainer.add(clearButton);
 		buttonPanel.add(clearButton);
 		
-		JButton geneticsButton = new JButton("Update Evolution");
-		geneticsButton.addActionListener(new EvolutionHandler());
-		JPanel geneticsContainer = new JPanel();
-		geneticsContainer.add(geneticsButton);
-		geneticMetrics.add(geneticsContainer);
-		
 		
 		statsPanel.add(inputPanel);
 		statsPanel.add(graphResults);
@@ -158,6 +149,7 @@ public class NavigationPanel extends JPanel{
 		chart = new RadarChart(
 				new String[]{"STD", "Mean", "Median", "Min", "Max"}, 
 				new double[]{3,2,3,0.5,0.5}, 5);
+		FormatComponent.addTitleLabel(optionsPanel, "Weights:");
 		optionsPanel.add(chart);
 
 		//optionsPanel.add(initializeWeights());
@@ -172,29 +164,6 @@ public class NavigationPanel extends JPanel{
 		
 		this.add(tabbedPane);
 	}
-	
-	/*public JPanel createColorPanel(){
-		JPanel cPanel = new JPanel(new GridLayout(2,2));
-		
-		JLabel label1 = new JLabel("bar color 1:");
-		JLabel label2 = new JLabel("bar color 2:");
-		
-		ColorButton button1 = new ColorButton(Color.red, "bar1");
-		button1.addActionListener(new ColorHandler());
-		
-		ColorButton button2 = new ColorButton(Color.blue, "bar2");
-		button2.addActionListener(new ColorHandler());
-		
-		crbg.addColorButton(button1);
-		crbg.addColorButton(button2);
-		
-		cPanel.add(label1);
-		cPanel.add(button1);
-		cPanel.add(label2);
-		cPanel.add(button2);
-		
-		return cPanel;
-	}*/
 	
 
 	
@@ -239,6 +208,8 @@ public class NavigationPanel extends JPanel{
 					field.setText(Integer.toString(state.getThreshold())); break;
 				case " Population" :
 					field.setText(Integer.toString(state.getPopulation())); break;
+				//case " Mutation" :
+				//	field.setText(Integer.toString((int) state.getMutation())); break;
 			}
 		}
 	}
@@ -314,6 +285,22 @@ public class NavigationPanel extends JPanel{
 				state.getMedian(), state.getSTD(), state.getPeople());
 	}
 	
+	private void prepareCalculator(Calculator calc, GraphState state){
+		calc.update(state.getMin(), state.getMax(), state.getMean(),
+				state.getMedian(), state.getSTD(), state.getPeople());
+		calc.setGenerations(state.getGenerations());
+		calc.setThresold(state.getThreshold());
+		calc.setPopulation(state.getPopulation());
+		
+		double values[] = chart.getValues();
+		//order is "STD", "Mean", "Median", "Min", "Max"
+		calc.setStdWeight(values[0]);
+		calc.setMeanWeight(values[1]);
+		calc.setMedianWeight(values[2]);
+		calc.setMinWeight(values[3]);
+		calc.setMaxWeight(values[4]);
+	}
+	
 	public void updateLabels(GraphState state){
 		if(distribution == null || distribution.length == 0)
 			return;
@@ -359,22 +346,22 @@ public class NavigationPanel extends JPanel{
 				GraphState state = getTextFieldParams(null);
 				Calculator calc = getCalculator();
 			
-			
 				//if the old calculator does not equal the new calculator, regenerate the whole thing
 				if(!calculator.equals(calc)){
-					calculator.update(state.getMin(), state.getMax(), state.getMean(),
-							state.getMedian(), state.getSTD(), state.getPeople());
+					prepareCalculator(calculator, state);
 					distribution = calculator.findDistribution();
 					int[] dist = calculator.generateHistogram(distribution, state.getXSpacing());
-					double freq = state.getIntensity() ? 1.0 : 1.0 * Calculator.getMax(dist)/state.getPeople();
+					double freq = state.getIntensity() ? 
+							1.0 : 1.0 * Calculator.getMax(dist)/state.getPeople();
 					graph.drawHistogram(dist, state.getXSpacing(), 100, freq, (int) state.getYTicks());
-				} 
+				}
 				
 				//if the old and new calculators are the same, then just update the graph with
 				//new parameters
 				else {
 					int[] dist = calculator.generateHistogram(distribution, state.getXSpacing());
-					double freq = state.getIntensity() ? 1.0 : 1.0 * Calculator.getMax(dist)/state.getPeople();
+					double freq = state.getIntensity() ? 
+							1.0 : 1.0 * Calculator.getMax(dist)/state.getPeople();
 					graph.drawHistogram(dist, state.getXSpacing(), 100, freq, (int) state.getYTicks());
 				}
 				updateLabels(state);
@@ -412,8 +399,7 @@ public class NavigationPanel extends JPanel{
 		public void actionPerformed(ActionEvent e){
 			try{
 				GraphState state = getTextFieldParams(null);
-				calculator.update(state.getMin(), state.getMax(), state.getMean(),
-						state.getMedian(), state.getSTD(), state.getPeople());
+				prepareCalculator(calculator, state);
 				distribution = calculator.findDistribution();
 				int[] dist = calculator.generateHistogram(distribution, state.getXSpacing());
 				double freq = state.getIntensity() ? 1.0 : 1.0 * Calculator.getMax(dist)/state.getPeople();
@@ -475,29 +461,7 @@ public class NavigationPanel extends JPanel{
 		
 	}
 	
-	private class EvolutionHandler implements ActionListener{
-		
-		public void actionPerformed(ActionEvent e){
-			try{
-				GraphState state = getTextFieldParams(
-						new String[]{" Generations", " Threshold", " Population"});
-				calculator.setGenerations(state.getGenerations());
-				calculator.setThresold(state.getThreshold());
-				calculator.setPopulation(state.getPopulation());
-				double values[] = chart.getValues();
-				//order is "STD", "Mean", "Median", "Min", "Max"
-				calculator.setStdWeight(values[0]);
-				calculator.setMeanWeight(values[1]);
-				calculator.setMedianWeight(values[2]);
-				calculator.setMinWeight(values[3]);
-				calculator.setMaxWeight(values[4]);
-			} catch (IllegalArgumentException o){
-				generateWarning("IllegalArgumentException", o.getMessage());
-			}
-		}
-	}
-	
-	private class RadioHandler implements ActionListener{
+	/*private class RadioHandler implements ActionListener{
 		
 		public void actionPerformed(ActionEvent e){
 			String cmd = e.getActionCommand();
@@ -508,6 +472,6 @@ public class NavigationPanel extends JPanel{
 			case "tailed fitness rank": break;
 			}
 		}
-	}
+	}*/
 
 }

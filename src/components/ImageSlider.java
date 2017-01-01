@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -19,15 +21,13 @@ import javax.swing.event.ChangeListener;
  * @version created 11/17/16
  */
 @SuppressWarnings("serial")
-public class ImageSlider extends JPanel implements Slidable{
+public class ImageSlider extends JPanel implements MouseListener, MouseMotionListener{
 	
 	List<ChangeListener> list = new ArrayList<ChangeListener>();
 	private double value;
 	private double max;
 	
 	private BufferedImage image;
-	private int width;
-	private int height;
 	//double value;
 	
 	public ImageSlider(BufferedImage im, double val, double max) {
@@ -126,7 +126,6 @@ public class ImageSlider extends JPanel implements Slidable{
 		
 	}
 
-	@Override
 	public void addChangeListener(ChangeListener l){
 		list.add(l);
 	}

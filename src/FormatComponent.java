@@ -1,5 +1,4 @@
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -27,15 +26,7 @@ public class FormatComponent {
 	public static void addTextFields(JPanel panel, ArrayList<JTextField> fields,
 			String[] list, String title){
 		
-		JLabel titlelabel = new JLabel(title);
-		titlelabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		titlelabel.setHorizontalAlignment(SwingConstants.CENTER);
-		titlelabel.setOpaque(true);
-		//Font old = titlelabel.getFont();
-		Font header = new Font("Arial", Font.BOLD, 14);
-		titlelabel.setFont(header);
-		
-		panel.add(titlelabel);
+		addTitleLabel(panel, title);
 		
 		for(String label : list){
 			JLabel l = new JLabel(label + ":");
@@ -80,15 +71,7 @@ public class FormatComponent {
 	public static void addLabels(JPanel panel, ArrayList<JLabel> outputs, 
 			String[] list, String title){
 		
-		JLabel titlelabel = new JLabel(title);
-		titlelabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		titlelabel.setHorizontalAlignment(SwingConstants.CENTER);
-		//titlelabel.setForeground(foreground);
-		//titlelabel.setBackground(background);
-		titlelabel.setOpaque(true);
-		panel.add(titlelabel);
-		Font header = new Font("Arial", Font.BOLD, 14);
-		titlelabel.setFont(header);
+		addTitleLabel(panel, title);
 		panel.add(Box.createVerticalGlue());
 		
 		for(String label : list){
@@ -115,11 +98,18 @@ public class FormatComponent {
 	 * @param panel The panel to add the RadioButtons to
 	 * @param listener The listener that will activate when a button is pressed
 	 * @param list The list of strings to title the buttons with.
+	 * @param title The title of the radio buttons
 	 */
 	public static void addRadioButtons(JPanel panel, 
-			ActionListener listener, String[] list){
+			ActionListener listener, String[] list, String title){
 		ButtonGroup group = new ButtonGroup();
 		
+		//add the title first
+		if(title != null){
+			addTitleLabel(panel, title);
+		}
+		
+		//add the radio buttons next
 		int row = list.length/2;
 		int column = 2;
 		JPanel p = new JPanel();
@@ -142,5 +132,20 @@ public class FormatComponent {
 			p.add(button);
 		}
 		panel.add(p);
+	}
+	
+	/**
+	 * Adds a title label to the specified panel
+	 * @param panel
+	 * @param title
+	 */
+	public static void addTitleLabel(JPanel panel, String title){
+		JLabel titlelabel = new JLabel(title);
+		titlelabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		titlelabel.setHorizontalAlignment(SwingConstants.CENTER);
+		titlelabel.setOpaque(true);
+		Font header = new Font("Arial", Font.BOLD, 14);
+		titlelabel.setFont(header);
+		panel.add(titlelabel);
 	}
 }
